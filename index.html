@@ -71,6 +71,23 @@
             border: 3px solid var(--blue-light);
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
+                .status-msg {
+            margin-top: 15px;
+            color: var(--blue-light);
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .raw-text {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            text-align: left;
+            font-size: 1rem;
+            border: 1px solid var(--blue-primary);
+        }
     </style>
 </head>
 <body>
@@ -89,6 +106,36 @@
     </section>
 
     <div class="preview-container" id="previewContainer"></div>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
 
+        fileInput.addEventListener('change', async function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            // 1) Muestra la foto en pantalla
+            previewContainer.innerHTML = '<img src="' + URL.createObjectURL(file) + '" alt="Foto de tu medición">';
+
+            // 2) Mensaje de estado
+            const status = document.createElement('p');
+            status.className = 'status-msg';
+            status.innerText = '🔍 Leyendo tu foto... un momentito ☕';
+            previewContainer.appendChild(status);
+
+            // 3) Magia OCR: lee el texto de la foto
+            try {
+                const result = await Tesseract.recognize(file, 'spa');
+                status.innerText = '✅ Esto fue lo que leí en la foto:';
+                const raw = document.createElement('pre');
+                raw.className = 'raw-text';
+                raw.innerText = result.data.text || '(no encontré texto 😅)';
+                previewContainer.appendChild(raw);
+            } catch (error) {
+                status.innerText = '❌ Ups, no pude leer la foto. Prueba con mejor luz 💡';
+            }
+        });
+    </script>
 </body>
 </html>
