@@ -111,15 +111,14 @@
         const fileInput = document.getElementById('fileInput');
         const previewContainer = document.getElementById('previewContainer');
 
-        // 🥽 GAFAS DEL ROBOT: limpia la foto para leer mejor
-        async function prepararFoto(file) {
+        // 🥽 GAFAS v3: prepara la foto al tamaño y estilo que se pida
+        async function prepararFoto(file, anchoObjetivo, binarizar) {
             const img = new Image();
             img.src = URL.createObjectURL(file);
             await img.decode();
 
-            const MAX = 1200;
-            let escala = 2;
-            if (img.width * 2 > MAX) escala = MAX / img.width;
+            let escala = anchoObjetivo / img.width;
+            if (escala > 2) escala = 2;
 
             const canvas = document.createElement('canvas');
             canvas.width = Math.round(img.width * escala);
@@ -142,19 +141,22 @@
             }
             const promedio = suma / total;
             const oscura = promedio < 128;
-
-            // 🎯 Umbral inteligente: solo el "corazón" de los números
-            const umbral = oscura
-                ? (max + promedio) / 2    // foto oscura: solo lo muy brillante
-                : (min + promedio) / 2;   // foto clara: solo lo muy oscuro
+            const rango = (max - min) || 1;
 
             for (let i = 0; i < d.length; i += 4) {
-                let v = grises[i / 4] > umbral ? 255 : 0;
-                if (oscura) v = 255 - v;
+                const g = grises[i / 4];
+                let v;
+                if (binarizar) {
+                    const umbral = oscura ? (max + promedio) / 2 : (min + promedio) / 2;
+                    v = g > umbral ? 255 : 0;
+                    if (oscura) v = 255 - v;
+                } else {
+                    v = ((g - min) / rango) * 255;   // estira el contraste
+                    if (oscura) v = 255 - v;         // invierte si es LED
+                }
                 d[i] = d[i + 1] = d[i + 2] = v;
             }
 
-            // 🖼️ Borde blanco (al robot le gusta leer con margen)
             ctx.putImageData(imageData, 0, 0);
             ctx.strokeStyle = 'white';
             ctx.lineWidth = 40;
@@ -175,14 +177,13 @@
             previewContainer.appendChild(status);
 
             try {
-                const fotoLista = await prepararFoto(file);
-
-                // 🤖 DEBUG: vemos cómo ve el robot
-                const vistaRobot = document.createElement('div');
-                vistaRobot.innerHTML = '<p class="status-msg">🤖 Así ve el robot:</p><img src="' + fotoLista + '" alt="Vista del robot" style="max-width:100%; border-radius:10px;">';
-                previewContainer.appendChild(vistaRobot);
-
-                status.innerText = '🔍 Leyendo tu foto... un momentito ☕';
+                // 🤖 ROBOT TERCO v2: prueba 4 combinaciones, se queda con la mejor
+                const estrategias = [
+                    { ancho: 400, bin: true,  nombre: 'chica y limpia' },
+                    { ancho: 400, bin: false, nombre: 'chica en grises' },
+                    { ancho: 800, bin: true,  nombre: 'grande y limpia' },
+                    { ancho: 800, bin: false, nombre: 'grande en grises' }
+                ];
 
                 const worker = await Tesseract.createWorker('eng', 1, {
                     logger: m => {
@@ -191,30 +192,38 @@
                         }
                     }
                 });
+                await worker.setParameters({
+                    tessedit_char_whitelist: '0123456789',
+                    tessedit_pageseg_mode: Tesseract.PSM.AUTO
+                });
 
-                // 🤖 Robot terco: intenta 3 modos hasta encontrar números
-                const modos = [
-                    Tesseract.PSM.AUTO,
-                    Tesseract.PSM.SPARSE_TEXT,
-                    Tesseract.PSM.SINGLE_COLUMN
-                ];
-
-                let texto = '';
-                for (const modo of modos) {
-                    await worker.setParameters({
-                        tessedit_char_whitelist: '0123456789',
-                        tessedit_pageseg_mode: modo
-                    });
-                    const resultado = await worker.recognize(fotoLista);
-                    texto = (resultado.data.text || '').trim();
-                    if (texto) break;  // 🎉 ¡encontró números!
+                let mejorTexto = '', mejorPuntaje = 0, mejorFoto = null;
+                for (let i = 0; i < estrategias.length; i++) {
+                    const e = estrategias[i];
+                    status.innerText = '🤖 Intento ' + (i + 1) + ' de 4: ' + e.nombre + '...';
+                    const foto = await prepararFoto(file, e.ancho, e.bin);
+                    const r = await worker.recognize(foto);
+                    const t = (r.data.text || '').trim();
+                    const puntaje = (t.match(/\d{2,3}/g) || []).length;
+                    if (puntaje > mejorPuntaje) {
+                        mejorPuntaje = puntaje;
+                        mejorTexto = t;
+                        mejorFoto = foto;
+                    }
+                    if (mejorPuntaje >= 3) break;  // 🎉 encontró los 3 números
                 }
                 await worker.terminate();
+
+                if (mejorFoto) {
+                    const vistaRobot = document.createElement('div');
+                    vistaRobot.innerHTML = '<p class="status-msg">🤖 Así ve el robot (mejor intento):</p><img src="' + mejorFoto + '" alt="Vista del robot" style="max-width:100%; border-radius:10px;">';
+                    previewContainer.appendChild(vistaRobot);
+                }
 
                 status.innerText = '✅ Esto fue lo que leí:';
                 const raw = document.createElement('pre');
                 raw.className = 'raw-text';
-                raw.innerText = texto || '(no encontré números 😅)';
+                raw.innerText = mejorTexto || '(no encontré números 😅)';
                 previewContainer.appendChild(raw);
             } catch (error) {
                 status.innerText = '❌ Ups, no pude leer la foto. Prueba con mejor luz 💡';
