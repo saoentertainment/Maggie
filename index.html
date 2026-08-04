@@ -110,7 +110,7 @@
         const fileInput = document.getElementById('fileInput');
         const previewContainer = document.getElementById('previewContainer');
 
-        // 🥽 FOTO: tamaño chico + blanco y negro puro
+        // 🥽 FOTO: chica + blanco/negro + ENGROSADA
         async function prepararFoto(file) {
             const img = new Image();
             img.src = URL.createObjectURL(file);
@@ -127,6 +127,7 @@
 
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const d = imageData.data;
+            const w = canvas.width, h = canvas.height;
 
             let suma = 0, min = 255, max = 0;
             const total = d.length / 4;
@@ -147,11 +148,32 @@
                 if (oscura) v = 255 - v;
                 d[i] = d[i + 1] = d[i + 2] = v;
             }
+
+            // ➕ ENGROSAR x3: reconecta segmentos sueltos
+            for (let pass = 0; pass < 3; pass++) {
+                const copia = d.slice();
+                for (let y = 0; y < h; y++) {
+                    for (let x = 0; x < w; x++) {
+                        const i = (y * w + x) * 4;
+                        if (copia[i] < 128) continue;
+                        let negro = false;
+                        for (let dy = -1; dy <= 1 && !negro; dy++) {
+                            for (let dx = -1; dx <= 1; dx++) {
+                                const nx = x + dx, ny = y + dy;
+                                if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+                                if (copia[(ny * w + nx) * 4] < 128) { negro = true; break; }
+                            }
+                        }
+                        if (negro) d[i] = d[i + 1] = d[i + 2] = 0;
+                    }
+                }
+            }
+
             ctx.putImageData(imageData, 0, 0);
             return canvas;
         }
 
-        // 🧩 PIEZAS: agrupa píxeles negros conectados
+        // 🧩 PIEZAS conectadas
         function encontrarPiezas(d, w, h) {
             const labels = new Int32Array(w * h);
             const piezas = [];
@@ -184,20 +206,24 @@
             return piezas;
         }
 
-        // 📏 Une piezas flacas (el "1" viene en 2 palitos)
-        function unirFlacas(piezas) {
+        // 🧩 ROMPECABEZAS: flacas y planas se unen a vecinas cercanas
+        function unirPiezas(piezas) {
             const usadas = new Set();
             const resultado = [];
-            const esFlaca = p => (p.maxX - p.minX) < 0.3 * (p.maxY - p.minY);
+            const esFlaca = p => (p.maxX - p.minX) < 0.45 * (p.maxY - p.minY);
+            const esPlana = p => (p.maxY - p.minY) < 0.45 * (p.maxX - p.minX);
             for (const p of piezas) {
                 if (usadas.has(p)) continue;
                 let caja = { minX: p.minX, maxX: p.maxX, minY: p.minY, maxY: p.maxY, area: p.area };
-                if (esFlaca(p)) {
+                if (esFlaca(p) || esPlana(p)) {
                     for (const q of piezas) {
                         if (q === p || usadas.has(q)) continue;
                         const overlapX = Math.min(caja.maxX, q.maxX) - Math.max(caja.minX, q.minX);
+                        const overlapY = Math.min(caja.maxY, q.maxY) - Math.max(caja.minY, q.minY);
+                        const gapX = Math.max(q.minX - caja.maxX, caja.minX - q.maxX, 0);
                         const gapY = Math.max(q.minY - caja.maxY, caja.minY - q.maxY, 0);
-                        if (overlapX >= 0 && gapY < 0.6 * (caja.maxY - caja.minY)) {
+                        const H = Math.max(caja.maxY - caja.minY, q.maxY - q.minY);
+                        if ((overlapX > 0 && gapY < 0.5 * H) || (overlapY > 0 && gapX < 0.3 * H)) {
                             caja = {
                                 minX: Math.min(caja.minX, q.minX),
                                 maxX: Math.max(caja.maxX, q.maxX),
@@ -215,7 +241,7 @@
             return resultado;
         }
 
-        // 🔢 DOMINÓ: ¿qué palitos están encendidos?
+        // 🔢 DOMINÓ de 7 segmentos
         const PATRONES = {
             '0': 'abcdef', '1': 'bc', '2': 'abged', '3': 'abgcd', '4': 'fgbc',
             '5': 'afgcd', '6': 'afgedc', '7': 'abc', '8': 'abcdefg', '9': 'abcfgd'
@@ -238,7 +264,6 @@
                 return tot ? neg / tot : 0;
             };
 
-            // Caso especial: número "1" (caja flaca)
             if (W < 0.45 * H) {
                 const b = f(0, 0.05, 1, 0.45), c = f(0, 0.55, 1, 0.95);
                 return (b > 0.2 && c > 0.2) ? '1' : null;
@@ -265,7 +290,7 @@
             return mejorScore >= 6 ? mejor : null;
         }
 
-        // 📚 Arma filas → 3 números
+        // 📚 Filas → 3 números
         function leerDisplay(d, w, piezas) {
             const decos = [];
             for (const p of piezas) {
@@ -306,10 +331,19 @@
                 const w = canvas.width, h = canvas.height;
                 const d = ctx.getImageData(0, 0, w, h).data;
 
-                const piezas = unirFlacas(encontrarPiezas(d, w, h).filter(p => p.area >= 15));
+                // 🧹 ESCOBA: motitas fuera
+                let piezas = encontrarPiezas(d, w, h).filter(p => p.area >= 60);
+                // 🧩 ROMPECABEZAS
+                piezas = unirPiezas(piezas);
+                // 📏 Solo piezas con altura de número y forma de número
+                const hMax = Math.max(...piezas.map(p => p.maxY - p.minY), 1);
+                piezas = piezas.filter(p => {
+                    const H = p.maxY - p.minY, W = p.maxX - p.minX;
+                    return H >= 0.5 * hMax && W <= 1.3 * H;
+                });
+
                 const resultado = leerDisplay(d, w, piezas);
 
-                // 🎨 DEBUG: cajitas verdes sobre lo que leyó
                 ctx.strokeStyle = '#4caf50';
                 ctx.lineWidth = 2;
                 ctx.fillStyle = '#4caf50';
