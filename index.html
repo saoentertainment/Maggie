@@ -112,7 +112,7 @@
         const fileInput = document.getElementById('fileInput');
         const previewContainer = document.getElementById('previewContainer');
 
-        // 🥽 FOTO: chica + blanco/negro puro
+        // 🥽 FOTO: chica + blanco/negro con umbral OTSU (anti-reflejos)
         async function prepararFoto(file) {
             const img = new Image();
             img.src = URL.createObjectURL(file);
@@ -130,19 +130,33 @@
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const d = imageData.data;
 
-            let suma = 0, min = 255, max = 0;
+            let suma = 0;
             const total = d.length / 4;
             const grises = new Array(total);
             for (let i = 0; i < d.length; i += 4) {
                 const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
                 grises[i / 4] = g;
                 suma += g;
-                if (g < min) min = g;
-                if (g > max) max = g;
             }
             const promedio = suma / total;
             const oscura = promedio < 128;
-            const umbral = oscura ? (max + promedio) / 2 : (min + promedio) / 2;
+
+            // 📊 OTSU: umbral profesional que no se deslumbra
+            const hist = new Array(256).fill(0);
+            for (let i = 0; i < total; i++) hist[Math.min(255, Math.round(grises[i]))]++;
+            let sumAll = 0;
+            for (let i = 0; i < 256; i++) sumAll += i * hist[i];
+            let sumB = 0, wB = 0, varMax = -1, umbral = 128;
+            for (let t = 0; t < 256; t++) {
+                wB += hist[t];
+                if (wB === 0) continue;
+                const wF = total - wB;
+                if (wF === 0) break;
+                sumB += t * hist[t];
+                const dif = (sumB / wB) - ((sumAll - sumB) / wF);
+                const between = wB * wF * dif * dif;
+                if (between > varMax) { varMax = between; umbral = t; }
+            }
 
             for (let i = 0; i < d.length; i += 4) {
                 let v = grises[i / 4] > umbral ? 255 : 0;
@@ -366,14 +380,14 @@
                 const hMax = Math.max(...piezas.map(p => p.maxY - p.minY), 1);
                 piezas = piezas.filter(p => {
                     const H = p.maxY - p.minY, W = p.maxX - p.minX;
-                    return H >= 0.5 * hMax && W <= 1.3 * H;
+                    return H >= 0.4 * hMax && W <= 1.3 * H;
                 });
 
                 // ✂️ Cajas anchas = 2 números pegados → partir a la mitad
                 const finales = [];
                 for (const p of piezas) {
                     const H = p.maxY - p.minY, W = p.maxX - p.minX;
-                    if (W > 0.95 * H) {
+                    if (W > 0.85 * H) {
                         const mid = Math.round((p.minX + p.maxX) / 2);
                         finales.push({ minX: p.minX, maxX: mid, minY: p.minY, maxY: p.maxY });
                         finales.push({ minX: mid + 1, maxX: p.maxX, minY: p.minY, maxY: p.maxY });
