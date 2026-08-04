@@ -106,18 +106,17 @@
     </section>
 
     <div class="preview-container" id="previewContainer"></div>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script>
         const fileInput = document.getElementById('fileInput');
         const previewContainer = document.getElementById('previewContainer');
 
-        // 🥽 GAFAS v3: prepara la foto al tamaño y estilo que se pida
-        async function prepararFoto(file, anchoObjetivo, binarizar) {
+        // 🥽 FOTO: tamaño chico + blanco y negro puro
+        async function prepararFoto(file) {
             const img = new Image();
             img.src = URL.createObjectURL(file);
             await img.decode();
 
-            let escala = anchoObjetivo / img.width;
+            let escala = 500 / img.width;
             if (escala > 2) escala = 2;
 
             const canvas = document.createElement('canvas');
@@ -141,28 +140,154 @@
             }
             const promedio = suma / total;
             const oscura = promedio < 128;
-            const rango = (max - min) || 1;
+            const umbral = oscura ? (max + promedio) / 2 : (min + promedio) / 2;
 
             for (let i = 0; i < d.length; i += 4) {
-                const g = grises[i / 4];
-                let v;
-                if (binarizar) {
-                    const umbral = oscura ? (max + promedio) / 2 : (min + promedio) / 2;
-                    v = g > umbral ? 255 : 0;
-                    if (oscura) v = 255 - v;
-                } else {
-                    v = ((g - min) / rango) * 255;   // estira el contraste
-                    if (oscura) v = 255 - v;         // invierte si es LED
-                }
+                let v = grises[i / 4] > umbral ? 255 : 0;
+                if (oscura) v = 255 - v;
                 d[i] = d[i + 1] = d[i + 2] = v;
             }
-
             ctx.putImageData(imageData, 0, 0);
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 40;
-            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+            return canvas;
+        }
 
-            return canvas.toDataURL('image/png');
+        // 🧩 PIEZAS: agrupa píxeles negros conectados
+        function encontrarPiezas(d, w, h) {
+            const labels = new Int32Array(w * h);
+            const piezas = [];
+            let next = 1;
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const i = y * w + x;
+                    if (labels[i] || d[i * 4] >= 128) continue;
+                    const etiqueta = next++;
+                    const pila = [i];
+                    labels[i] = etiqueta;
+                    let minX = x, maxX = x, minY = y, maxY = y, area = 0;
+                    while (pila.length) {
+                        const p = pila.pop();
+                        const px = p % w;
+                        const py = (p - px) / w;
+                        area++;
+                        if (px < minX) minX = px;
+                        if (px > maxX) maxX = px;
+                        if (py < minY) minY = py;
+                        if (py > maxY) maxY = py;
+                        if (px + 1 < w && !labels[p + 1] && d[(p + 1) * 4] < 128) { labels[p + 1] = etiqueta; pila.push(p + 1); }
+                        if (px > 0 && !labels[p - 1] && d[(p - 1) * 4] < 128) { labels[p - 1] = etiqueta; pila.push(p - 1); }
+                        if (py + 1 < h && !labels[p + w] && d[(p + w) * 4] < 128) { labels[p + w] = etiqueta; pila.push(p + w); }
+                        if (py > 0 && !labels[p - w] && d[(p - w) * 4] < 128) { labels[p - w] = etiqueta; pila.push(p - w); }
+                    }
+                    piezas.push({ minX, maxX, minY, maxY, area });
+                }
+            }
+            return piezas;
+        }
+
+        // 📏 Une piezas flacas (el "1" viene en 2 palitos)
+        function unirFlacas(piezas) {
+            const usadas = new Set();
+            const resultado = [];
+            const esFlaca = p => (p.maxX - p.minX) < 0.3 * (p.maxY - p.minY);
+            for (const p of piezas) {
+                if (usadas.has(p)) continue;
+                let caja = { minX: p.minX, maxX: p.maxX, minY: p.minY, maxY: p.maxY, area: p.area };
+                if (esFlaca(p)) {
+                    for (const q of piezas) {
+                        if (q === p || usadas.has(q)) continue;
+                        const overlapX = Math.min(caja.maxX, q.maxX) - Math.max(caja.minX, q.minX);
+                        const gapY = Math.max(q.minY - caja.maxY, caja.minY - q.maxY, 0);
+                        if (overlapX >= 0 && gapY < 0.6 * (caja.maxY - caja.minY)) {
+                            caja = {
+                                minX: Math.min(caja.minX, q.minX),
+                                maxX: Math.max(caja.maxX, q.maxX),
+                                minY: Math.min(caja.minY, q.minY),
+                                maxY: Math.max(caja.maxY, q.maxY),
+                                area: caja.area + q.area
+                            };
+                            usadas.add(q);
+                        }
+                    }
+                }
+                usadas.add(p);
+                resultado.push(caja);
+            }
+            return resultado;
+        }
+
+        // 🔢 DOMINÓ: ¿qué palitos están encendidos?
+        const PATRONES = {
+            '0': 'abcdef', '1': 'bc', '2': 'abged', '3': 'abgcd', '4': 'fgbc',
+            '5': 'afgcd', '6': 'afgedc', '7': 'abc', '8': 'abcdefg', '9': 'abcfgd'
+        };
+
+        function decodificar(d, w, p) {
+            const W = p.maxX - p.minX, H = p.maxY - p.minY;
+            if (H < 15 || W < 6) return null;
+
+            const f = (rx0, ry0, rx1, ry1) => {
+                let neg = 0, tot = 0;
+                const x0 = Math.round(p.minX + rx0 * W), x1 = Math.round(p.minX + rx1 * W);
+                const y0 = Math.round(p.minY + ry0 * H), y1 = Math.round(p.minY + ry1 * H);
+                for (let y = y0; y <= y1; y++) {
+                    for (let x = x0; x <= x1; x++) {
+                        tot++;
+                        if (d[(y * w + x) * 4] < 128) neg++;
+                    }
+                }
+                return tot ? neg / tot : 0;
+            };
+
+            // Caso especial: número "1" (caja flaca)
+            if (W < 0.45 * H) {
+                const b = f(0, 0.05, 1, 0.45), c = f(0, 0.55, 1, 0.95);
+                return (b > 0.2 && c > 0.2) ? '1' : null;
+            }
+
+            const seg = {
+                a: f(0.25, 0.00, 0.75, 0.14),
+                b: f(0.72, 0.08, 1.00, 0.42),
+                c: f(0.72, 0.58, 1.00, 0.92),
+                d: f(0.25, 0.86, 0.75, 1.00),
+                e: f(0.00, 0.58, 0.28, 0.92),
+                f: f(0.00, 0.08, 0.28, 0.42),
+                g: f(0.25, 0.43, 0.75, 0.57)
+            };
+
+            let mejor = null, mejorScore = -1;
+            for (const num in PATRONES) {
+                let s = 0;
+                for (const k of 'abcdefg') {
+                    if ((seg[k] > 0.25) === PATRONES[num].includes(k)) s++;
+                }
+                if (s > mejorScore) { mejorScore = s; mejor = num; }
+            }
+            return mejorScore >= 6 ? mejor : null;
+        }
+
+        // 📚 Arma filas → 3 números
+        function leerDisplay(d, w, piezas) {
+            const decos = [];
+            for (const p of piezas) {
+                const num = decodificar(d, w, p);
+                if (num) decos.push({ minX: p.minX, maxX: p.maxX, minY: p.minY, maxY: p.maxY, num });
+            }
+            decos.sort((a, b) => (a.minY + a.maxY) - (b.minY + b.maxY));
+            const filas = [];
+            for (const dec of decos) {
+                const cy = (dec.minY + dec.maxY) / 2;
+                let fila = null;
+                for (const fl of filas) {
+                    if (Math.abs(fl.cy - cy) < 0.5 * (dec.maxY - dec.minY)) { fila = fl; break; }
+                }
+                if (fila) fila.items.push(dec);
+                else filas.push({ cy, items: [dec] });
+            }
+            const numeros = filas.map(fl => {
+                fl.items.sort((a, b) => a.minX - b.minX);
+                return fl.items.map(i => i.num).join('');
+            });
+            return { numeros, decos };
         }
 
         fileInput.addEventListener('change', async function () {
@@ -170,63 +295,46 @@
             if (!file) return;
 
             previewContainer.innerHTML = '<img src="' + URL.createObjectURL(file) + '" alt="Foto de tu medición">';
-
             const status = document.createElement('p');
             status.className = 'status-msg';
-            status.innerText = '🥽 Poniéndome los lentes...';
+            status.innerText = '🔍 Leyendo tu medición...';
             previewContainer.appendChild(status);
 
             try {
-                // 🤖 ROBOT TERCO v2: prueba 4 combinaciones, se queda con la mejor
-                const estrategias = [
-                    { ancho: 400, bin: true,  nombre: 'chica y limpia' },
-                    { ancho: 400, bin: false, nombre: 'chica en grises' },
-                    { ancho: 800, bin: true,  nombre: 'grande y limpia' },
-                    { ancho: 800, bin: false, nombre: 'grande en grises' }
-                ];
+                const canvas = await prepararFoto(file);
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width, h = canvas.height;
+                const d = ctx.getImageData(0, 0, w, h).data;
 
-                const worker = await Tesseract.createWorker('eng', 1, {
-                    logger: m => {
-                        if (m.status === 'recognizing text') {
-                            status.innerText = '🔍 Leyendo... ' + Math.round(m.progress * 100) + '%';
-                        }
-                    }
-                });
-                await worker.setParameters({
-                    tessedit_char_whitelist: '0123456789',
-                    tessedit_pageseg_mode: Tesseract.PSM.AUTO
-                });
+                const piezas = unirFlacas(encontrarPiezas(d, w, h).filter(p => p.area >= 15));
+                const resultado = leerDisplay(d, w, piezas);
 
-                let mejorTexto = '', mejorPuntaje = 0, mejorFoto = null;
-                for (let i = 0; i < estrategias.length; i++) {
-                    const e = estrategias[i];
-                    status.innerText = '🤖 Intento ' + (i + 1) + ' de 4: ' + e.nombre + '...';
-                    const foto = await prepararFoto(file, e.ancho, e.bin);
-                    const r = await worker.recognize(foto);
-                    const t = (r.data.text || '').trim();
-                    const puntaje = (t.match(/\d{2,3}/g) || []).length;
-                    if (puntaje > mejorPuntaje) {
-                        mejorPuntaje = puntaje;
-                        mejorTexto = t;
-                        mejorFoto = foto;
-                    }
-                    if (mejorPuntaje >= 3) break;  // 🎉 encontró los 3 números
-                }
-                await worker.terminate();
-
-                if (mejorFoto) {
-                    const vistaRobot = document.createElement('div');
-                    vistaRobot.innerHTML = '<p class="status-msg">🤖 Así ve el robot (mejor intento):</p><img src="' + mejorFoto + '" alt="Vista del robot" style="max-width:100%; border-radius:10px;">';
-                    previewContainer.appendChild(vistaRobot);
+                // 🎨 DEBUG: cajitas verdes sobre lo que leyó
+                ctx.strokeStyle = '#4caf50';
+                ctx.lineWidth = 2;
+                ctx.fillStyle = '#4caf50';
+                ctx.font = 'bold 14px sans-serif';
+                for (const dec of resultado.decos) {
+                    ctx.strokeRect(dec.minX - 2, dec.minY - 2, dec.maxX - dec.minX + 4, dec.maxY - dec.minY + 4);
+                    ctx.fillText(dec.num, dec.minX, dec.minY - 5);
                 }
 
-                status.innerText = '✅ Esto fue lo que leí:';
+                const vista = document.createElement('div');
+                vista.innerHTML = '<p class="status-msg">🤖 Así ve el robot:</p>';
+                const img = document.createElement('img');
+                img.src = canvas.toDataURL('image/png');
+                img.style.maxWidth = '100%';
+                img.style.borderRadius = '10px';
+                vista.appendChild(img);
+                previewContainer.appendChild(vista);
+
+                status.innerText = resultado.numeros.length === 3 ? '✅ ¡Lectura completa!' : '✅ Esto encontré:';
                 const raw = document.createElement('pre');
                 raw.className = 'raw-text';
-                raw.innerText = mejorTexto || '(no encontré números 😅)';
+                raw.innerText = resultado.numeros.length ? resultado.numeros.join(' / ') : '(no encontré números 😅)';
                 previewContainer.appendChild(raw);
             } catch (error) {
-                status.innerText = '❌ Ups, no pude leer la foto. Prueba con mejor luz 💡';
+                status.innerText = '❌ Ups, algo falló. Prueba con mejor luz 💡';
             }
         });
     </script>
