@@ -110,7 +110,7 @@
         const fileInput = document.getElementById('fileInput');
         const previewContainer = document.getElementById('previewContainer');
 
-        // 🥽 FOTO: chica + blanco/negro + ENGROSADA
+        // 🥽 FOTO: chica + blanco/negro puro
         async function prepararFoto(file) {
             const img = new Image();
             img.src = URL.createObjectURL(file);
@@ -127,7 +127,6 @@
 
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const d = imageData.data;
-            const w = canvas.width, h = canvas.height;
 
             let suma = 0, min = 255, max = 0;
             const total = d.length / 4;
@@ -148,9 +147,13 @@
                 if (oscura) v = 255 - v;
                 d[i] = d[i + 1] = d[i + 2] = v;
             }
+            ctx.putImageData(imageData, 0, 0);
+            return canvas;
+        }
 
-            // ➕ ENGROSAR x3: reconecta segmentos sueltos
-            for (let pass = 0; pass < 2; pass++) {
+        // ➕ ENGROSAR: reconecta segmentos sueltos
+        function engrosar(d, w, h, pases) {
+            for (let pass = 0; pass < pases; pass++) {
                 const copia = d.slice();
                 for (let y = 0; y < h; y++) {
                     for (let x = 0; x < w; x++) {
@@ -168,12 +171,9 @@
                     }
                 }
             }
-
-            ctx.putImageData(imageData, 0, 0);
-            return canvas;
         }
 
-        // 🧩 PIEZAS conectadas
+        // 🧩 PIEZAS conectadas (devuelve también el mapa de etiquetas)
         function encontrarPiezas(d, w, h) {
             const labels = new Int32Array(w * h);
             const piezas = [];
@@ -203,14 +203,14 @@
                     piezas.push({ minX, maxX, minY, maxY, area });
                 }
             }
-            return piezas;
+            return { piezas, labels };
         }
 
         // 🧩 ROMPECABEZAS: flacas y planas se unen a vecinas cercanas
         function unirPiezas(piezas) {
             const usadas = new Set();
             const resultado = [];
-            const esFlaca = p => (p.maxX - p.minX) < 0.45 * (p.maxY - p.minY);
+            const esFlaca = p => (p.maxX - p.minX) < 0.5 * (p.maxY - p.minY);
             const esPlana = p => (p.maxY - p.minY) < 0.45 * (p.maxX - p.minX);
             for (const p of piezas) {
                 if (usadas.has(p)) continue;
@@ -331,11 +331,21 @@
                 const w = canvas.width, h = canvas.height;
                 const d = ctx.getImageData(0, 0, w, h).data;
 
-                // 🧹 ESCOBA: motitas fuera
-                let piezas = encontrarPiezas(d, w, h).filter(p => p.area >= 60 && p.area <= 0.05 * w * h);
-                // 🧩 ROMPECABEZAS
+                // 🧹 BARRER ANTES DE ENGROSAR: motitas y puentes fuera
+                const primera = encontrarPiezas(d, w, h);
+                for (let i = 0; i < primera.labels.length; i++) {
+                    const lab = primera.labels[i];
+                    if (lab && primera.piezas[lab - 1].area < 150) {
+                        d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = 255;
+                    }
+                }
+
+                // ➕ Ahora sí, engrosar sin puentes traidores
+                engrosar(d, w, h, 2);
+
+                const segundas = encontrarPiezas(d, w, h);
+                let piezas = segundas.piezas.filter(p => p.area >= 60 && p.area <= 0.05 * w * h);
                 piezas = unirPiezas(piezas);
-                // 📏 Solo piezas con altura de número y forma de número
                 const hMax = Math.max(...piezas.map(p => p.maxY - p.minY), 1);
                 piezas = piezas.filter(p => {
                     const H = p.maxY - p.minY, W = p.maxX - p.minX;
@@ -344,6 +354,7 @@
 
                 const resultado = leerDisplay(d, w, piezas);
 
+                ctx.putImageData(ctx.getImageData(0, 0, w, h), 0, 0);
                 ctx.strokeStyle = '#4caf50';
                 ctx.lineWidth = 2;
                 ctx.fillStyle = '#4caf50';
