@@ -117,16 +117,20 @@
             img.src = URL.createObjectURL(file);
             await img.decode();
 
+            // 📏 Tamaño ideal: máx 1200px de ancho (gigante = mareo 😵)
+            const MAX = 1200;
+            let escala = 2;
+            if (img.width * 2 > MAX) escala = MAX / img.width;
+
             const canvas = document.createElement('canvas');
-            canvas.width = img.width * 2;   // agranda x2
-            canvas.height = img.height * 2;
+            canvas.width = Math.round(img.width * escala);
+            canvas.height = Math.round(img.height * escala);
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const d = imageData.data;
 
-            // 1) Escala de grises + brillo promedio
             let suma = 0;
             const total = d.length / 4;
             const grises = new Array(total);
@@ -136,12 +140,11 @@
                 suma += g;
             }
             const promedio = suma / total;
-            const oscura = promedio < 128;  // pantalla LED = foto oscura
+            const oscura = promedio < 128;
 
-            // 2) Blanco y negro puro (números negros / fondo blanco)
             for (let i = 0; i < d.length; i += 4) {
                 let v = grises[i / 4] > promedio ? 255 : 0;
-                if (oscura) v = 255 - v;  // invertir si es oscura
+                if (oscura) v = 255 - v;
                 d[i] = d[i + 1] = d[i + 2] = v;
             }
 
@@ -162,6 +165,12 @@
 
             try {
                 const fotoLista = await prepararFoto(file);
+
+                // 🤖 DEBUG: vemos cómo ve el robot
+                const vistaRobot = document.createElement('div');
+                vistaRobot.innerHTML = '<p class="status-msg">🤖 Así ve el robot:</p><img src="' + fotoLista + '" alt="Vista del robot" style="max-width:100%; border-radius:10px;">';
+                previewContainer.appendChild(vistaRobot);
+
                 status.innerText = '🔍 Leyendo tu foto... un momentito ☕';
 
                 const worker = await Tesseract.createWorker('eng', 1, {
@@ -172,7 +181,6 @@
                     }
                 });
 
-                // 🔢 Solo números, leídos de arriba a abajo
                 await worker.setParameters({
                     tessedit_char_whitelist: '0123456789',
                     tessedit_pageseg_mode: Tesseract.PSM.SINGLE_COLUMN
