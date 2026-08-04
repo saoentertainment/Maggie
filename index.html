@@ -192,18 +192,29 @@
                     }
                 });
 
-                await worker.setParameters({
-                    tessedit_char_whitelist: '0123456789',
-                    tessedit_pageseg_mode: Tesseract.PSM.SINGLE_COLUMN
-                });
+                // 🤖 Robot terco: intenta 3 modos hasta encontrar números
+                const modos = [
+                    Tesseract.PSM.AUTO,
+                    Tesseract.PSM.SPARSE_TEXT,
+                    Tesseract.PSM.SINGLE_COLUMN
+                ];
 
-                const result = await worker.recognize(fotoLista);
+                let texto = '';
+                for (const modo of modos) {
+                    await worker.setParameters({
+                        tessedit_char_whitelist: '0123456789',
+                        tessedit_pageseg_mode: modo
+                    });
+                    const resultado = await worker.recognize(fotoLista);
+                    texto = (resultado.data.text || '').trim();
+                    if (texto) break;  // 🎉 ¡encontró números!
+                }
                 await worker.terminate();
 
                 status.innerText = '✅ Esto fue lo que leí:';
                 const raw = document.createElement('pre');
                 raw.className = 'raw-text';
-                raw.innerText = result.data.text || '(no encontré números 😅)';
+                raw.innerText = texto || '(no encontré números 😅)';
                 previewContainer.appendChild(raw);
             } catch (error) {
                 status.innerText = '❌ Ups, no pude leer la foto. Prueba con mejor luz 💡';
