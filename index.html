@@ -71,7 +71,8 @@
             border: 3px solid var(--blue-light);
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-                .status-msg {
+
+        .status-msg {
             margin-top: 15px;
             color: var(--blue-light);
             font-size: 1.2rem;
@@ -106,6 +107,7 @@
     </section>
 
     <div class="preview-container" id="previewContainer"></div>
+
     <script>
         const fileInput = document.getElementById('fileInput');
         const previewContainer = document.getElementById('previewContainer');
@@ -173,7 +175,7 @@
             }
         }
 
-        // 🧩 PIEZAS conectadas (devuelve también el mapa de etiquetas)
+        // 🧩 PIEZAS conectadas
         function encontrarPiezas(d, w, h) {
             const labels = new Int32Array(w * h);
             const piezas = [];
@@ -264,9 +266,18 @@
                 return tot ? neg / tot : 0;
             };
 
+            // 🎚️ Umbral adaptable al grosor de cada número
+            let negTot = 0;
+            for (let y = p.minY; y <= p.maxY; y++) {
+                for (let x = p.minX; x <= p.maxX; x++) {
+                    if (d[(y * w + x) * 4] < 128) negTot++;
+                }
+            }
+            const thr = Math.max(0.12, (negTot / (W * H)) * 0.45);
+
             if (W < 0.45 * H) {
                 const b = f(0, 0.05, 1, 0.45), c = f(0, 0.55, 1, 0.95);
-                return (b > 0.2 && c > 0.2) ? '1' : null;
+                return (b > thr && c > thr) ? '1' : null;
             }
 
             const seg = {
@@ -283,7 +294,7 @@
             for (const num in PATRONES) {
                 let s = 0;
                 for (const k of 'abcdefg') {
-                    if ((seg[k] > 0.25) === PATRONES[num].includes(k)) s++;
+                    if ((seg[k] > thr) === PATRONES[num].includes(k)) s++;
                 }
                 if (s > mejorScore) { mejorScore = s; mejor = num; }
             }
@@ -329,19 +340,25 @@
                 const canvas = await prepararFoto(file);
                 const ctx = canvas.getContext('2d');
                 const w = canvas.width, h = canvas.height;
-                const d = ctx.getImageData(0, 0, w, h).data;
+                const imageData = ctx.getImageData(0, 0, w, h);
+                const d = imageData.data;
 
-                // 🧹 BARRER ANTES DE ENGROSAR: motitas y puentes fuera
+                // 🧹 BARRER ANTES DE ENGROSAR (respeta los palitos del "1")
                 const primera = encontrarPiezas(d, w, h);
                 for (let i = 0; i < primera.labels.length; i++) {
                     const lab = primera.labels[i];
-                    if (lab && primera.piezas[lab - 1].area < 150) {
+                    if (!lab) continue;
+                    const pz = primera.piezas[lab - 1];
+                    const Hp = pz.maxY - pz.minY, Wp = pz.maxX - pz.minX;
+                    const esPalito = Hp >= 12 && Wp < 0.5 * Hp;
+                    if (pz.area < 150 && !esPalito) {
                         d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = 255;
                     }
                 }
 
-                // ➕ Ahora sí, engrosar sin puentes traidores
+                // ➕ Engrosar sin puentes traidores
                 engrosar(d, w, h, 2);
+                ctx.putImageData(imageData, 0, 0);
 
                 const segundas = encontrarPiezas(d, w, h);
                 let piezas = segundas.piezas.filter(p => p.area >= 60 && p.area <= 0.05 * w * h);
@@ -352,9 +369,23 @@
                     return H >= 0.5 * hMax && W <= 1.3 * H;
                 });
 
+                // ✂️ Cajas anchas = 2 números pegados → partir a la mitad
+                const finales = [];
+                for (const p of piezas) {
+                    const H = p.maxY - p.minY, W = p.maxX - p.minX;
+                    if (W > 0.95 * H) {
+                        const mid = Math.round((p.minX + p.maxX) / 2);
+                        finales.push({ minX: p.minX, maxX: mid, minY: p.minY, maxY: p.maxY });
+                        finales.push({ minX: mid + 1, maxX: p.maxX, minY: p.minY, maxY: p.maxY });
+                    } else {
+                        finales.push(p);
+                    }
+                }
+                piezas = finales;
+
                 const resultado = leerDisplay(d, w, piezas);
 
-                ctx.putImageData(ctx.getImageData(0, 0, w, h), 0, 0);
+                // 🎨 Cajitas verdes de debug
                 ctx.strokeStyle = '#4caf50';
                 ctx.lineWidth = 2;
                 ctx.fillStyle = '#4caf50';
