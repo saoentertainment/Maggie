@@ -150,7 +150,7 @@
             }
 
             // ➕ ENGROSAR x3: reconecta segmentos sueltos
-            for (let pass = 0; pass < 3; pass++) {
+            for (let pass = 0; pass < 2; pass++) {
                 const copia = d.slice();
                 for (let y = 0; y < h; y++) {
                     for (let x = 0; x < w; x++) {
@@ -332,7 +332,7 @@
                 const d = ctx.getImageData(0, 0, w, h).data;
 
                 // 🧹 ESCOBA: motitas fuera
-                let piezas = encontrarPiezas(d, w, h).filter(p => p.area >= 60);
+                let piezas = encontrarPiezas(d, w, h).filter(p => p.area >= 60 && p.area <= 0.05 * w * h);
                 // 🧩 ROMPECABEZAS
                 piezas = unirPiezas(piezas);
                 // 📏 Solo piezas con altura de número y forma de número
