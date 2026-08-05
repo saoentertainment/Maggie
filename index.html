@@ -65,14 +65,113 @@
     .screen.active {
       display: flex;
     }
+/* 🏠 HOME */
+.app-title {
+  font-size: 28px;
+  color: var(--blue-light);
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.last-reading {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 28px 24px;
+  text-align: center;
+  width: 100%;
+  max-width: 340px;
+  margin-bottom: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.last-label {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.last-value {
+  font-size: 52px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.last-pulse {
+  font-size: 22px;
+  color: var(--blue-light);
+}
+
+.last-date {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+/* 🔘 BOTONES GIGANTES */
+.home-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 340px;
+}
+
+.btn {
+  border: none;
+  border-radius: 16px;
+  padding: 22px 16px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--white);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn-purple {
+  background: var(--purple);
+  box-shadow: 0 4px 20px rgba(142, 36, 170, 0.4);
+}
+
+.btn-blue {
+  background: var(--blue);
+  box-shadow: 0 4px 20px rgba(25, 118, 210, 0.4);
+}
+
+.btn-green {
+  background: var(--green);
+  box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
+}    
   </style>
 </head>
 <body>
 
-  <!-- 📱 PANTALLA 1: HOME -->
-  <div id="screen-home" class="screen active">
-    <h1>🏠 HOME</h1>
+<!-- 📱 PANTALLA 1: HOME -->
+<div id="screen-home" class="screen active">
+
+  <!-- Título -->
+  <h1 class="app-title">💜 Margarita Pressure</h1>
+
+  <!-- Última medición -->
+  <div class="last-reading" id="last-reading">
+    <span class="last-label">Última medición</span>
+    <span class="last-value" id="last-value">-- / --</span>
+    <span class="last-pulse" id="last-pulse">Pulso: --</span>
+    <span class="last-date" id="last-date">Sin registros aún</span>
   </div>
+
+  <!-- Botones principales -->
+  <div class="home-buttons">
+    <button class="btn btn-purple" id="btn-new">➕ NUEVA MEDICIÓN</button>
+    <button class="btn btn-blue" id="btn-history">📋 HISTORIAL</button>
+    <button class="btn btn-green" id="btn-report">📄 REPORTE</button>
+  </div>
+
+</div>
 
   <!-- 📱 PANTALLA 2: REGISTRO -->
   <div id="screen-register" class="screen">
