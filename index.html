@@ -211,6 +211,54 @@
   max-width: 340px;
   margin-top: 20px;
 }    
+/* ✅ CONFIRMAR */
+.confirm-card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  width: 100%;
+  max-width: 340px;
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.confirm-bp {
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.confirm-pulse {
+  font-size: 26px;
+  color: var(--blue-light);
+}
+
+.confirm-time {
+  font-size: 20px;
+  color: var(--text-secondary);
+}
+
+.confirm-buttons {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.btn-back {
+  background: transparent;
+  border: 2px solid var(--text-secondary);
+  color: var(--text-secondary);
+  box-shadow: none;
+}
+
+.btn-back:active {
+  background: rgba(255,255,255,0.05);
+}    
   </style>
 </head>
 <body>
@@ -239,7 +287,7 @@
 </div>
 
 <!-- 📱 PANTALLA 2: REGISTRO -->
-<div id="screen-register" class="screen active">
+<div id="screen-home" class="screen">
 
   <h2 class="register-title">📝 Nueva Medición</h2>
 
@@ -288,10 +336,25 @@
 
 </div>
 
-  <!-- 📱 PANTALLA 3: CONFIRMAR -->
-  <div id="screen-confirm" class="screen">
-    <h1>✅ CONFIRMAR</h1>
+<!-- 📱 PANTALLA 3: CONFIRMAR -->
+<div id="screen-confirm" class="screen active">
+
+  <h2 class="register-title">¿Guardar esta medición?</h2>
+
+  <!-- Resumen grande -->
+  <div class="confirm-card">
+    <span class="confirm-bp" id="confirm-bp">120 / 80</span>
+    <span class="confirm-pulse" id="confirm-pulse">❤️ Pulso: 72</span>
+    <span class="confirm-time" id="confirm-time">🕐 09:30 AM</span>
   </div>
+
+  <!-- Botones -->
+  <div class="confirm-buttons">
+    <button class="btn btn-green btn-full" id="btn-save">✅ GUARDAR</button>
+    <button class="btn btn-back" id="btn-back">← Corregir</button>
+  </div>
+
+</div>
 
   <!-- 📱 PANTALLA 4: HISTORIAL -->
   <div id="screen-history" class="screen">
