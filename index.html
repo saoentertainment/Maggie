@@ -145,13 +145,78 @@
 .btn-green {
   background: var(--green);
   box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
+} 
+/* 📝 REGISTRO */
+.register-title {
+  font-size: 26px;
+  color: var(--blue-light);
+  margin-bottom: 28px;
+}
+
+.reg-row {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 18px 16px;
+  width: 100%;
+  max-width: 340px;
+  margin-bottom: 14px;
+}
+
+.reg-label {
+  display: block;
+  font-size: 17px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.reg-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reg-value {
+  font-size: 44px;
+  font-weight: 700;
+  color: var(--white);
+  min-width: 100px;
+  text-align: center;
+}
+
+/* 🔘 BOTONES +/− GIGANTES */
+.btn-step {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: none;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--white);
+  background: var(--blue);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s, background 0.2s;
+}
+
+.btn-step:active {
+  transform: scale(0.9);
+  background: var(--blue-light);
+}
+
+/* Botón siguiente a ancho completo */
+.btn-full {
+  width: 100%;
+  max-width: 340px;
+  margin-top: 20px;
 }    
   </style>
 </head>
 <body>
 
 <!-- 📱 PANTALLA 1: HOME -->
-<div id="screen-home" class="screen active">
+<div id="screen-home" class="screen">
 
   <!-- Título -->
   <h1 class="app-title">💜 Margarita Pressure</h1>
@@ -173,10 +238,55 @@
 
 </div>
 
-  <!-- 📱 PANTALLA 2: REGISTRO -->
-  <div id="screen-register" class="screen">
-    <h1>📝 REGISTRO</h1>
+<!-- 📱 PANTALLA 2: REGISTRO -->
+<div id="screen-register" class="screen active">
+
+  <h2 class="register-title">📝 Nueva Medición</h2>
+
+  <!-- 🕐 HORA -->
+  <div class="reg-row" id="row-time">
+    <span class="reg-label">🕐 Hora</span>
+    <div class="reg-control">
+      <button class="btn-step" id="time-minus">−</button>
+      <span class="reg-value" id="time-value">--:--</span>
+      <button class="btn-step" id="time-plus">＋</button>
+    </div>
   </div>
+
+  <!-- 💓 SISTÓLICA -->
+  <div class="reg-row">
+    <span class="reg-label">💓 Sistólica</span>
+    <div class="reg-control">
+      <button class="btn-step" id="sys-minus">−</button>
+      <span class="reg-value" id="sys-value">120</span>
+      <button class="btn-step" id="sys-plus">＋</button>
+    </div>
+  </div>
+
+  <!-- 💗 DIASTÓLICA -->
+  <div class="reg-row">
+    <span class="reg-label">💗 Diastólica</span>
+    <div class="reg-control">
+      <button class="btn-step" id="dia-minus">−</button>
+      <span class="reg-value" id="dia-value">80</span>
+      <button class="btn-step" id="dia-plus">＋</button>
+    </div>
+  </div>
+
+  <!-- ❤️ PULSO -->
+  <div class="reg-row">
+    <span class="reg-label">❤️ Pulso</span>
+    <div class="reg-control">
+      <button class="btn-step" id="pulse-minus">−</button>
+      <span class="reg-value" id="pulse-value">72</span>
+      <button class="btn-step" id="pulse-plus">＋</button>
+    </div>
+  </div>
+
+  <!-- Botón siguiente -->
+  <button class="btn btn-purple btn-full" id="btn-next">SIGUIENTE ➡️</button>
+
+</div>
 
   <!-- 📱 PANTALLA 3: CONFIRMAR -->
   <div id="screen-confirm" class="screen">
