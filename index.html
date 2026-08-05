@@ -377,47 +377,135 @@
     </div>
   </div>
 
-  <script>
-    // 🧠 MARGARITA PRESSURE - Cerebro
+<script>
+// 🧠 MARGARITA PRESSURE - Cerebro
 
-    function showScreen(id) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
+// 📱 SISTEMA DE PANTALLAS
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
 
-    // 🔘 NAVEGACIÓN
-    document.getElementById('btn-new').addEventListener('click', () => {
-      showScreen('screen-register');
-    });
+// 🔢 VALORES ACTUALES
+let sysValue = 120;
+let diaValue = 80;
+let pulseValue = 72;
+let timeMinutes = 0; // minutos desde medianoche
 
-    document.getElementById('btn-history').addEventListener('click', () => {
-      showScreen('screen-history');
-    });
+// 🕐 HORA: convertir minutos a formato 12h
+function formatTime(mins) {
+  let h = Math.floor(mins / 60);
+  let m = mins % 60;
+  let ampm = h >= 12 ? 'PM' : 'AM';
+  let h12 = h % 12;
+  if (h12 === 0) h12 = 12;
+  return h12 + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
+}
 
-    document.getElementById('btn-report').addEventListener('click', () => {
-      showScreen('screen-report');
-    });
+// 🕐 HORA: actualizar en pantalla
+function updateTimeDisplay() {
+  document.getElementById('time-value').textContent = formatTime(timeMinutes);
+}
 
-    document.getElementById('btn-next').addEventListener('click', () => {
-      showScreen('screen-confirm');
-    });
+// 🔢 Actualizar números en pantalla
+function updateDisplays() {
+  document.getElementById('sys-value').textContent = sysValue;
+  document.getElementById('dia-value').textContent = diaValue;
+  document.getElementById('pulse-value').textContent = pulseValue;
+  updateTimeDisplay();
+}
 
-    document.getElementById('btn-back').addEventListener('click', () => {
-      showScreen('screen-register');
-    });
+// 📱 Al entrar a REGISTRO: poner hora actual
+function setCurrentTime() {
+  const now = new Date();
+  timeMinutes = now.getHours() * 60 + now.getMinutes();
+  // Redondear a 5 min más cercano
+  timeMinutes = Math.round(timeMinutes / 5) * 5;
+  if (timeMinutes >= 1440) timeMinutes = 0;
+}
 
-    document.getElementById('btn-home-from-register').addEventListener('click', () => {
-      showScreen('screen-home');
-    });
+// 🔘 NAVEGACIÓN
+document.getElementById('btn-new').addEventListener('click', () => {
+  setCurrentTime();
+  updateDisplays();
+  showScreen('screen-register');
+});
 
-    document.getElementById('btn-home-from-history').addEventListener('click', () => {
-      showScreen('screen-home');
-    });
+document.getElementById('btn-history').addEventListener('click', () => {
+  showScreen('screen-history');
+});
 
-    document.getElementById('btn-home-from-report').addEventListener('click', () => {
-      showScreen('screen-home');
-    });
-  </script>
+document.getElementById('btn-report').addEventListener('click', () => {
+  showScreen('screen-report');
+});
+
+document.getElementById('btn-next').addEventListener('click', () => {
+  showScreen('screen-confirm');
+});
+
+document.getElementById('btn-back').addEventListener('click', () => {
+  showScreen('screen-register');
+});
+
+document.getElementById('btn-home-from-register').addEventListener('click', () => {
+  showScreen('screen-home');
+});
+
+document.getElementById('btn-home-from-history').addEventListener('click', () => {
+  showScreen('screen-home');
+});
+
+document.getElementById('btn-home-from-report').addEventListener('click', () => {
+  showScreen('screen-home');
+});
+
+// ➕➖ HORA (saltos de 5 min)
+document.getElementById('time-minus').addEventListener('click', () => {
+  timeMinutes -= 5;
+  if (timeMinutes < 0) timeMinutes = 1435;
+  updateTimeDisplay();
+});
+
+document.getElementById('time-plus').addEventListener('click', () => {
+  timeMinutes += 5;
+  if (timeMinutes >= 1440) timeMinutes = 0;
+  updateTimeDisplay();
+});
+
+// ➕➖ SISTÓLICA (60 a 250)
+document.getElementById('sys-minus').addEventListener('click', () => {
+  if (sysValue > 60) sysValue--;
+  updateDisplays();
+});
+
+document.getElementById('sys-plus').addEventListener('click', () => {
+  if (sysValue < 250) sysValue++;
+  updateDisplays();
+});
+
+// ➕➖ DIASTÓLICA (40 a 150)
+document.getElementById('dia-minus').addEventListener('click', () => {
+  if (diaValue > 40) diaValue--;
+  updateDisplays();
+});
+
+document.getElementById('dia-plus').addEventListener('click', () => {
+  if (diaValue < 150) diaValue++;
+  updateDisplays();
+});
+
+// ➕➖ PULSO (30 a 200)
+document.getElementById('pulse-minus').addEventListener('click', () => {
+  if (pulseValue > 30) pulseValue--;
+  updateDisplays();
+});
+
+document.getElementById('pulse-plus').addEventListener('click', () => {
+  if (pulseValue < 200) pulseValue++;
+  updateDisplays();
+});
+
+</script>
 
 </body>
 </html>
