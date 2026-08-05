@@ -440,6 +440,10 @@ document.getElementById('btn-report').addEventListener('click', () => {
 });
 
 document.getElementById('btn-next').addEventListener('click', () => {
+  // Actualizar pantalla CONFIRMAR con valores reales
+  document.getElementById('confirm-bp').textContent = sysValue + ' / ' + diaValue;
+  document.getElementById('confirm-pulse').textContent = '❤️ Pulso: ' + pulseValue;
+  document.getElementById('confirm-time').textContent = '🕐 ' + formatTime(timeMinutes);
   showScreen('screen-confirm');
 });
 
