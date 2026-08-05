@@ -9,8 +9,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <!-- 🌸 FAVICON -->
- <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230a1929'/><text x='50' y='72' font-size='55' text-anchor='middle'>🌸</text></svg>">
+  <!-- 🌸 FAVICON CUADRADO -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230a1929'/><text x='50' y='72' font-size='55' text-anchor='middle'>🌸</text></svg>">
 
   <!-- 📱 PREVIEW PARA WHATSAPP -->
   <meta property="og:title" content="💜 Margarita Pressure">
@@ -57,7 +57,6 @@
 
     .screen.active { display: flex; }
 
-    /* 🏠 HOME */
     .app-title {
       font-size: 28px;
       color: var(--blue-light);
@@ -119,7 +118,6 @@
 
     .btn-discreet:active { background: rgba(255,255,255,0.05); }
 
-    /* 📝 REGISTRO */
     .register-title {
       font-size: 26px;
       color: var(--blue-light);
@@ -176,7 +174,6 @@
 
     .btn-full { width: 100%; max-width: 340px; margin-top: 20px; }
 
-    /* 📝 MODO MANUAL */
     .manual-fields {
       display: none;
       width: 100%;
@@ -185,7 +182,6 @@
 
     .manual-fields.visible { display: block; }
 
-    /* ✅ CONFIRMAR */
     .confirm-card {
       background: var(--card);
       border-radius: 20px;
@@ -220,7 +216,6 @@
 
     .btn-back:active { background: rgba(255,255,255,0.05); }
 
-    /* 📋 HISTORIAL */
     .history-list {
       width: 100%;
       max-width: 340px;
@@ -270,7 +265,6 @@
 
     .history-card-delete:active { opacity: 1; }
 
-    /* 📄 REPORTE */
     .report-box {
       background: var(--card);
       border-radius: 16px;
@@ -296,7 +290,7 @@
 
   <!-- 📱 PANTALLA 1: HOME -->
   <div id="screen-home" class="screen active">
-<h1 class="app-title">👵🩺💜 Margarita Pressure</h1>
+    <h1 class="app-title">👵🩺💜 Margarita Pressure</h1>
     <div class="last-reading">
       <span class="last-label">Última medición</span>
       <span class="last-value" id="last-value">-- / --</span>
@@ -315,7 +309,6 @@
   <div id="screen-register" class="screen">
     <h2 class="register-title">📝 Nueva Medición</h2>
 
-    <!-- 📅 FECHA (solo modo manual) -->
     <div class="manual-fields" id="manual-fields">
       <div class="reg-row">
         <span class="reg-label">📅 Día</span>
@@ -343,7 +336,6 @@
       </div>
     </div>
 
-    <!-- 🕐 HORA -->
     <div class="reg-row">
       <span class="reg-label">🕐 Hora</span>
       <div class="reg-control">
@@ -353,7 +345,6 @@
       </div>
     </div>
 
-    <!-- 💓 SISTÓLICA -->
     <div class="reg-row">
       <span class="reg-label">💓 Sistólica</span>
       <div class="reg-control">
@@ -363,7 +354,6 @@
       </div>
     </div>
 
-    <!-- 💗 DIASTÓLICA -->
     <div class="reg-row">
       <span class="reg-label">💗 Diastólica</span>
       <div class="reg-control">
@@ -373,7 +363,6 @@
       </div>
     </div>
 
-    <!-- ❤️ PULSO -->
     <div class="reg-row">
       <span class="reg-label">❤️ Pulso</span>
       <div class="reg-control">
@@ -435,7 +424,6 @@
   let pulseValue = 72;
   let timeMinutes = 0;
 
-  // 📝 MODO MANUAL
   let manualMode = false;
   let manualDay = 1;
   let manualMonth = 0;
@@ -525,7 +513,7 @@
 
   function renderHistory() {
     const container = document.getElementById('history-list');
-    sortReadings();    
+    sortReadings();
     if (readings.length === 0) {
       container.innerHTML = '<p class="history-empty">Aún no hay mediciones 💜</p>';
       return;
@@ -548,15 +536,14 @@
 
   function generateReport() {
     const box = document.getElementById('report-box');
+    sortReadings();
     if (readings.length === 0) {
       box.innerHTML = '<p class="history-empty">No hay mediciones para reportar 💜</p>';
       return;
     }
     let totalSys = 0, totalDia = 0, totalPulse = 0;
     let lines = readings.map((r, i) => {
-      totalSys += r.sys;
-      totalDia += r.dia;
-      totalPulse += r.pulse;
+      totalSys += r.sys; totalDia += r.dia; totalPulse += r.pulse;
       const status = getStatus(r.sys, r.dia, r.pulse);
       const emoji = getStatusEmoji(status);
       return (i+1) + '. ' + r.date + ' · ' + formatTime(r.timeMinutes) + ' → ' + r.sys + '/' + r.dia + ' · Pulso ' + r.pulse + ' ' + emoji;
@@ -572,6 +559,7 @@
 
   function copyReport() {
     if (readings.length === 0) { showToast('No hay mediciones 💜'); return; }
+    sortReadings();
     let totalSys = 0, totalDia = 0, totalPulse = 0;
     let lines = readings.map((r, i) => {
       totalSys += r.sys; totalDia += r.dia; totalPulse += r.pulse;
@@ -631,7 +619,7 @@
   }
 
   function updateHomeDisplay() {
-    sortReadings();    
+    sortReadings();
     if (readings.length === 0) {
       document.getElementById('last-value').textContent = '-- / --';
       document.getElementById('last-pulse').textContent = 'Pulso: --';
@@ -803,7 +791,7 @@
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js');
     });
-  }    
+  }
   </script>
 
 </body>
