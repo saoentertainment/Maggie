@@ -20,17 +20,7 @@
   <meta property="og:image" content="https://saoentertainment.github.io/Maggie/icon.png">
 
   <!-- 📱 Manifest PWA -->
-  <script type="application/json" id="pwa-manifest">
-  {
-    "name": "Margarita Pressure",
-    "short_name": "MargaritaBP",
-    "start_url": ".",
-    "display": "standalone",
-    "background_color": "#0a1929",
-    "theme_color": "#0a1929",
-    "icons": []
-  }
-  </script>
+  <link rel="manifest" href="manifest.json">
 
   <style>
     :root {
@@ -795,6 +785,13 @@
 
   // 🚀 AL CARGAR
   updateHomeDisplay();
+
+  // 📲 PWA: Registrar Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js');
+    });
+  }    
   </script>
 
 </body>
