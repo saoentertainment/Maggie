@@ -258,6 +258,84 @@
 
 .btn-back:active {
   background: rgba(255,255,255,0.05);
+}
+/* 📋 HISTORIAL */
+.history-list {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 10px;
+}
+
+.history-empty {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 20px;
+  padding: 40px 0;
+}
+
+/* Tarjeta individual de medición */
+.history-card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 16px;
+  border-left: 6px solid var(--green);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.history-card.warning {
+  border-left-color: var(--yellow);
+}
+
+.history-card.danger {
+  border-left-color: var(--red);
+}
+
+.history-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-card-bp {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.history-card-pulse {
+  font-size: 18px;
+  color: var(--blue-light);
+}
+
+.history-card-date {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.history-card-status {
+  font-size: 28px;
+}
+
+/* Botón borrar en tarjeta */
+.history-card-delete {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.5;
+  padding: 4px;
+}
+
+.history-card-delete:active {
+  opacity: 1;
 }    
   </style>
 </head>
@@ -337,7 +415,7 @@
 </div>
 
 <!-- 📱 PANTALLA 3: CONFIRMAR -->
-<div id="screen-confirm" class="screen active">
+<div id="screen-confirm" class="screen">
 
   <h2 class="register-title">¿Guardar esta medición?</h2>
 
@@ -356,10 +434,20 @@
 
 </div>
 
-  <!-- 📱 PANTALLA 4: HISTORIAL -->
-  <div id="screen-history" class="screen">
-    <h1>📋 HISTORIAL</h1>
+<!-- 📱 PANTALLA 4: HISTORIAL -->
+<div id="screen-history" class="screen active">
+
+  <h2 class="register-title">📋 Historial</h2>
+
+  <!-- Contenedor de tarjetas (se llena con JS) -->
+  <div class="history-list" id="history-list">
+    <p class="history-empty">Aún no hay mediciones 💜</p>
   </div>
+
+  <!-- Botón volver -->
+  <button class="btn btn-back btn-full" id="btn-home-from-history">← Volver</button>
+
+</div>
 
   <!-- 📱 PANTALLA 5: REPORTE -->
   <div id="screen-report" class="screen">
