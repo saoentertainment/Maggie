@@ -8,17 +8,18 @@
   <meta name="theme-color" content="#0a1929">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- 🌸 FAVICON (flor margarita con corazón) -->
-   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
 
-  <!-- 📱 PREVIEW PARA WHATSAPP (Open Graph) -->
+  <!-- 🌸 FAVICON -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
+
+  <!-- 📱 PREVIEW PARA WHATSAPP -->
   <meta property="og:title" content="💜 Margarita Pressure">
   <meta property="og:description" content="Registro de presión arterial para Irma Margarita. Simple, grande y con amor. 👵🌸">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://saoentertainment.github.io/Maggie/">
   <meta property="og:image" content="https://saoentertainment.github.io/Maggie/icon.png">
 
-  <!-- 📱 Manifest PWA inline -->
+  <!-- 📱 Manifest PWA -->
   <script type="application/json" id="pwa-manifest">
   {
     "name": "Margarita Pressure",
@@ -32,7 +33,6 @@
   </script>
 
   <style>
-    /* 🎨 PALETA TOTAL FEST */
     :root {
       --bg-dark: #0a1929;
       --card: #132f4c;
@@ -46,11 +46,7 @@
       --text-secondary: #b0bec5;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
@@ -69,9 +65,7 @@
       justify-content: center;
     }
 
-    .screen.active {
-      display: flex;
-    }
+    .screen.active { display: flex; }
 
     /* 🏠 HOME */
     .app-title {
@@ -99,7 +93,6 @@
     .last-pulse { font-size: 22px; color: var(--blue-light); }
     .last-date { font-size: 15px; color: var(--text-secondary); margin-top: 8px; }
 
-    /* 🔘 BOTONES */
     .home-buttons {
       display: flex;
       flex-direction: column;
@@ -124,6 +117,17 @@
     .btn-purple { background: var(--purple); box-shadow: 0 4px 20px rgba(142,36,170,0.4); }
     .btn-blue { background: var(--blue); box-shadow: 0 4px 20px rgba(25,118,210,0.4); }
     .btn-green { background: var(--green); box-shadow: 0 4px 20px rgba(76,175,80,0.4); }
+
+    .btn-discreet {
+      background: transparent;
+      border: 2px solid var(--text-secondary);
+      color: var(--text-secondary);
+      font-size: 16px;
+      padding: 14px 16px;
+      box-shadow: none;
+    }
+
+    .btn-discreet:active { background: rgba(255,255,255,0.05); }
 
     /* 📝 REGISTRO */
     .register-title {
@@ -181,6 +185,15 @@
     .btn-step:active { transform: scale(0.9); background: var(--blue-light); }
 
     .btn-full { width: 100%; max-width: 340px; margin-top: 20px; }
+
+    /* 📝 MODO MANUAL */
+    .manual-fields {
+      display: none;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    .manual-fields.visible { display: block; }
 
     /* ✅ CONFIRMAR */
     .confirm-card {
@@ -287,29 +300,6 @@
       white-space: pre-wrap;
       font-family: 'Courier New', monospace;
     }
-     /* 📝 MODO MANUAL */
-    .manual-fields {
-      display: none;
-      width: 100%;
-      max-width: 340px;
-    }
-
-    .manual-fields.visible {
-      display: block;
-    }
-
-    .btn-discreet {
-      background: transparent;
-      border: 2px solid var(--text-secondary);
-      color: var(--text-secondary);
-      font-size: 16px;
-      padding: 14px 16px;
-      box-shadow: none;
-    }
-
-    .btn-discreet:active {
-      background: rgba(255,255,255,0.05);
-    }   
   </style>
 </head>
 <body>
@@ -329,11 +319,13 @@
       <button class="btn btn-green" id="btn-report">📄 REPORTE</button>
       <button class="btn btn-discreet" id="btn-manual">📝 Agregar manual</button>
     </div>
+  </div>
 
   <!-- 📱 PANTALLA 2: REGISTRO -->
   <div id="screen-register" class="screen">
     <h2 class="register-title">📝 Nueva Medición</h2>
-    <!-- 📅 FECHA (solo visible en modo manual) -->
+
+    <!-- 📅 FECHA (solo modo manual) -->
     <div class="manual-fields" id="manual-fields">
       <div class="reg-row">
         <span class="reg-label">📅 Día</span>
@@ -343,7 +335,6 @@
           <button class="btn-step" id="day-plus">＋</button>
         </div>
       </div>
-
       <div class="reg-row">
         <span class="reg-label">📅 Mes</span>
         <div class="reg-control">
@@ -352,7 +343,6 @@
           <button class="btn-step" id="month-plus">＋</button>
         </div>
       </div>
-
       <div class="reg-row">
         <span class="reg-label">📅 Año</span>
         <div class="reg-control">
@@ -361,8 +351,9 @@
           <button class="btn-step" id="year-plus">＋</button>
         </div>
       </div>
-    </div>    
+    </div>
 
+    <!-- 🕐 HORA -->
     <div class="reg-row">
       <span class="reg-label">🕐 Hora</span>
       <div class="reg-control">
@@ -372,6 +363,7 @@
       </div>
     </div>
 
+    <!-- 💓 SISTÓLICA -->
     <div class="reg-row">
       <span class="reg-label">💓 Sistólica</span>
       <div class="reg-control">
@@ -381,6 +373,7 @@
       </div>
     </div>
 
+    <!-- 💗 DIASTÓLICA -->
     <div class="reg-row">
       <span class="reg-label">💗 Diastólica</span>
       <div class="reg-control">
@@ -390,6 +383,7 @@
       </div>
     </div>
 
+    <!-- ❤️ PULSO -->
     <div class="reg-row">
       <span class="reg-label">❤️ Pulso</span>
       <div class="reg-control">
@@ -438,452 +432,370 @@
     </div>
   </div>
 
-<script>
-// 🧠 MARGARITA PRESSURE - Cerebro
+  <script>
+  // 🧠 MARGARITA PRESSURE - Cerebro
 
-// 📱 SISTEMA DE PANTALLAS
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-// 🔢 VALORES ACTUALES
-let sysValue = 120;
-let diaValue = 80;
-let pulseValue = 72;
-let timeMinutes = 0;
-
-// 📝 MODO MANUAL
-let manualMode = false;
-let manualDay = 1;
-let manualMonth = 0; // 0 = Enero, 11 = Diciembre
-let manualYear = 2026;
-const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-
-// 💾 LECTURAS GUARDADAS
-let readings = JSON.parse(localStorage.getItem('margarita_readings')) || [];
-
-// 🔔 SONIDO "DING"
-function playDing() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = 880;
-    osc.type = 'sine';
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.4);
-  } catch(e) {}
-}
-
-// 📳 VIBRACIÓN
-function vibrate() {
-  if (navigator.vibrate) navigator.vibrate(100);
-}
-
-// 🕐 HORA: formato 12h
-function formatTime(mins) {
-  let h = Math.floor(mins / 60);
-  let m = mins % 60;
-  let ampm = h >= 12 ? 'PM' : 'AM';
-  let h12 = h % 12;
-  if (h12 === 0) h12 = 12;
-  return h12 + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
-}
-
-function updateTimeDisplay() {
-  document.getElementById('time-value').textContent = formatTime(timeMinutes);
-}
-
-function updateDisplays() {
-  document.getElementById('sys-value').textContent = sysValue;
-  document.getElementById('dia-value').textContent = diaValue;
-  document.getElementById('pulse-value').textContent = pulseValue;
-  updateTimeDisplay();
-}
-
-// 📅 Actualizar fecha manual en pantalla
-function updateManualDisplay() {
-  document.getElementById('day-value').textContent = manualDay;
-  document.getElementById('month-value').textContent = MONTHS[manualMonth];
-  document.getElementById('year-value').textContent = manualYear;
-}
-
-// 📅 Días según mes
-function getDaysInMonth(month, year) {
-  return new Date(year, month + 1, 0).getDate();
-}
-
-// 🕐 Poner hora actual al entrar a REGISTRO
-function setCurrentTime() {
-  const now = new Date();
-  timeMinutes = now.getHours() * 60 + now.getMinutes();
-  timeMinutes = Math.round(timeMinutes / 5) * 5;
-  if (timeMinutes >= 1440) timeMinutes = 0;
-}
-
-// 🚦 SEMÁFORO
-function getStatus(sys, dia, pulse) {
-  if (sys >= 150 || dia >= 95 || pulse < 50 || pulse > 110) return 'danger';
-  if (sys >= 130 || dia >= 85 || pulse < 60 || pulse > 100) return 'warning';
-  return 'ok';
-}
-
-function getStatusEmoji(status) {
-  if (status === 'danger') return '🔴';
-  if (status === 'warning') return '🟡';
-  return '🟢';
-}
-
-// 📋 RENDERIZAR HISTORIAL
-function renderHistory() {
-  const container = document.getElementById('history-list');
-  if (readings.length === 0) {
-    container.innerHTML = '<p class="history-empty">Aún no hay mediciones 💜</p>';
-    return;
-  }
-  container.innerHTML = readings.map(r => {
-    const status = getStatus(r.sys, r.dia, r.pulse);
-    const emoji = getStatusEmoji(status);
-    const cardClass = status === 'danger' ? ' danger' : status === 'warning' ? ' warning' : '';
-    return '<div class="history-card' + cardClass + '">' +
-      '<div class="history-card-info">' +
-        '<span class="history-card-bp">' + r.sys + ' / ' + r.dia + '</span>' +
-        '<span class="history-card-pulse">❤️ ' + r.pulse + '</span>' +
-        '<span class="history-card-date">' + r.date + ' · ' + formatTime(r.timeMinutes) + '</span>' +
-      '</div>' +
-      '<span class="history-card-status">' + emoji + '</span>' +
-      '<button class="history-card-delete" data-id="' + r.id + '">🗑️</button>' +
-    '</div>';
-  }).join('');
-}
-
-// 📄 GENERAR REPORTE
-function generateReport() {
-  const box = document.getElementById('report-box');
-  if (readings.length === 0) {
-    box.innerHTML = '<p class="history-empty">No hay mediciones para reportar 💜</p>';
-    return;
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
   }
 
-  let totalSys = 0, totalDia = 0, totalPulse = 0;
-  let lines = readings.map((r, i) => {
-    totalSys += r.sys;
-    totalDia += r.dia;
-    totalPulse += r.pulse;
-    const status = getStatus(r.sys, r.dia, r.pulse);
-    const emoji = getStatusEmoji(status);
-    return (i + 1) + '. ' + r.date + ' · ' + formatTime(r.timeMinutes) + ' → ' + r.sys + '/' + r.dia + ' · Pulso ' + r.pulse + ' ' + emoji;
-  });
+  let sysValue = 120;
+  let diaValue = 80;
+  let pulseValue = 72;
+  let timeMinutes = 0;
 
-  const avgSys = Math.round(totalSys / readings.length);
-  const avgDia = Math.round(totalDia / readings.length);
-  const avgPulse = Math.round(totalPulse / readings.length);
+  // 📝 MODO MANUAL
+  let manualMode = false;
+  let manualDay = 1;
+  let manualMonth = 0;
+  let manualYear = 2026;
+  const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
-  const now = new Date();
-  const today = now.getFullYear() + '-' +
-    String(now.getMonth() + 1).padStart(2, '0') + '-' +
-    String(now.getDate()).padStart(2, '0');
+  let readings = JSON.parse(localStorage.getItem('margarita_readings')) || [];
 
-  const reportText = '💜 MARGARITA PRESSURE - Reporte\n' +
-    '📅 Generado: ' + today + '\n' +
-    '📋 Total de mediciones: ' + readings.length + '\n\n' +
-    lines.join('\n') + '\n\n' +
-    '📊 Promedio: ' + avgSys + '/' + avgDia + ' · Pulso ' + avgPulse;
-
-  box.innerHTML = '<p class="report-text">' + reportText.replace(/\n/g, '<br>') + '</p>';
-}
-
-// 📋 COPIAR REPORTE
-function copyReport() {
-  if (readings.length === 0) {
-    showToast('No hay mediciones para copiar 💜');
-    return;
+  function playDing() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    } catch(e) {}
   }
 
-  let totalSys = 0, totalDia = 0, totalPulse = 0;
-  let lines = readings.map((r, i) => {
-    totalSys += r.sys;
-    totalDia += r.dia;
-    totalPulse += r.pulse;
-    const status = getStatus(r.sys, r.dia, r.pulse);
-    const emoji = getStatusEmoji(status);
-    return (i + 1) + '. ' + r.date + ' · ' + formatTime(r.timeMinutes) + ' → ' + r.sys + '/' + r.dia + ' · Pulso ' + r.pulse + ' ' + emoji;
-  });
-
-  const avgSys = Math.round(totalSys / readings.length);
-  const avgDia = Math.round(totalDia / readings.length);
-  const avgPulse = Math.round(totalPulse / readings.length);
-
-  const now = new Date();
-  const today = now.getFullYear() + '-' +
-    String(now.getMonth() + 1).padStart(2, '0') + '-' +
-    String(now.getDate()).padStart(2, '0');
-
-  const text = '💜 MARGARITA PRESSURE - Reporte\n' +
-    '📅 Generado: ' + today + '\n' +
-    '📋 Total de mediciones: ' + readings.length + '\n\n' +
-    lines.join('\n') + '\n\n' +
-    '📊 Promedio: ' + avgSys + '/' + avgDia + ' · Pulso ' + avgPulse;
-
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.left = '0';
-  ta.style.top = '0';
-  ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.focus();
-  ta.select();
-  ta.setSelectionRange(0, text.length);
-
-  try {
-    document.execCommand('copy');
-    showToast('✅ Reporte copiado. Pégalo en WhatsApp 💜');
-  } catch(e) {
-    showToast('❌ No se pudo copiar.');
+  function vibrate() {
+    if (navigator.vibrate) navigator.vibrate(100);
   }
-  document.body.removeChild(ta);
-}
 
-// 💬 TOAST
-function showToast(msg) {
-  let toast = document.getElementById('toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'toast';
-    toast.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#4caf50;color:#fff;padding:16px 24px;border-radius:12px;font-size:16px;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.4);text-align:center;max-width:90%;';
-    document.body.appendChild(toast);
+  function formatTime(mins) {
+    let h = Math.floor(mins / 60);
+    let m = mins % 60;
+    let ampm = h >= 12 ? 'PM' : 'AM';
+    let h12 = h % 12;
+    if (h12 === 0) h12 = 12;
+    return h12 + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
   }
-  toast.textContent = msg;
-  toast.style.display = 'block';
-  setTimeout(() => { toast.style.display = 'none'; }, 3000);
-}
 
-// 💾 GUARDAR MEDICIÓN
-function saveReading() {
-  let dateStr;
-  if (manualMode) {
-    // Usar fecha manual
-    dateStr = manualYear + '-' +
-      String(manualMonth + 1).padStart(2, '0') + '-' +
-      String(manualDay).padStart(2, '0');
-  } else {
-    // Usar fecha actual
+  function updateTimeDisplay() {
+    document.getElementById('time-value').textContent = formatTime(timeMinutes);
+  }
+
+  function updateDisplays() {
+    document.getElementById('sys-value').textContent = sysValue;
+    document.getElementById('dia-value').textContent = diaValue;
+    document.getElementById('pulse-value').textContent = pulseValue;
+    updateTimeDisplay();
+  }
+
+  function updateManualDisplay() {
+    document.getElementById('day-value').textContent = manualDay;
+    document.getElementById('month-value').textContent = MONTHS[manualMonth];
+    document.getElementById('year-value').textContent = manualYear;
+  }
+
+  function getDaysInMonth(month, year) {
+    return new Date(year, month + 1, 0).getDate();
+  }
+
+  function setCurrentTime() {
     const now = new Date();
-    dateStr = now.getFullYear() + '-' +
-      String(now.getMonth() + 1).padStart(2, '0') + '-' +
-      String(now.getDate()).padStart(2, '0');
+    timeMinutes = now.getHours() * 60 + now.getMinutes();
+    timeMinutes = Math.round(timeMinutes / 5) * 5;
+    if (timeMinutes >= 1440) timeMinutes = 0;
   }
 
-  const reading = {
-    id: Date.now(),
-    sys: sysValue,
-    dia: diaValue,
-    pulse: pulseValue,
-    timeMinutes: timeMinutes,
-    date: dateStr
-  };
-  readings.unshift(reading);
-  localStorage.setItem('margarita_readings', JSON.stringify(readings));
-}
-
-// 🏠 ÚLTIMA MEDICIÓN EN HOME
-function updateHomeDisplay() {
-  if (readings.length === 0) {
-    document.getElementById('last-value').textContent = '-- / --';
-    document.getElementById('last-pulse').textContent = 'Pulso: --';
-    document.getElementById('last-date').textContent = 'Sin registros aún';
-    return;
+  function getStatus(sys, dia, pulse) {
+    if (sys >= 150 || dia >= 95 || pulse < 50 || pulse > 110) return 'danger';
+    if (sys >= 130 || dia >= 85 || pulse < 60 || pulse > 100) return 'warning';
+    return 'ok';
   }
-  const last = readings[0];
-  document.getElementById('last-value').textContent = last.sys + ' / ' + last.dia;
-  document.getElementById('last-pulse').textContent = 'Pulso: ' + last.pulse;
-  document.getElementById('last-date').textContent = last.date + ' · ' + formatTime(last.timeMinutes);
-}
 
-// 🔘 NAVEGACIÓN
-document.getElementById('btn-new').addEventListener('click', () => {
-  manualMode = false;
-  document.getElementById('manual-fields').classList.remove('visible');
-  setCurrentTime();
-  updateDisplays();
-  showScreen('screen-register');
-});
+  function getStatusEmoji(status) {
+    if (status === 'danger') return '🔴';
+    if (status === 'warning') return '🟡';
+    return '🟢';
+  }
 
-document.getElementById('btn-manual').addEventListener('click', () => {
-  manualMode = true;
-  // Poner fecha actual por defecto
-  const now = new Date();
-  manualDay = now.getDate();
-  manualMonth = now.getMonth();
-  manualYear = now.getFullYear();
-  updateManualDisplay();
-  document.getElementById('manual-fields').classList.add('visible');
-  setCurrentTime();
-  updateDisplays();
-  showScreen('screen-register');
-});
+  function renderHistory() {
+    const container = document.getElementById('history-list');
+    if (readings.length === 0) {
+      container.innerHTML = '<p class="history-empty">Aún no hay mediciones 💜</p>';
+      return;
+    }
+    container.innerHTML = readings.map(r => {
+      const status = getStatus(r.sys, r.dia, r.pulse);
+      const emoji = getStatusEmoji(status);
+      const cardClass = status === 'danger' ? ' danger' : status === 'warning' ? ' warning' : '';
+      return '<div class="history-card' + cardClass + '">' +
+        '<div class="history-card-info">' +
+          '<span class="history-card-bp">' + r.sys + ' / ' + r.dia + '</span>' +
+          '<span class="history-card-pulse">❤️ ' + r.pulse + '</span>' +
+          '<span class="history-card-date">' + r.date + ' · ' + formatTime(r.timeMinutes) + '</span>' +
+        '</div>' +
+        '<span class="history-card-status">' + emoji + '</span>' +
+        '<button class="history-card-delete" data-id="' + r.id + '">🗑️</button>' +
+      '</div>';
+    }).join('');
+  }
 
-document.getElementById('btn-history').addEventListener('click', () => {
-  renderHistory();
-  showScreen('screen-history');
-});
+  function generateReport() {
+    const box = document.getElementById('report-box');
+    if (readings.length === 0) {
+      box.innerHTML = '<p class="history-empty">No hay mediciones para reportar 💜</p>';
+      return;
+    }
+    let totalSys = 0, totalDia = 0, totalPulse = 0;
+    let lines = readings.map((r, i) => {
+      totalSys += r.sys;
+      totalDia += r.dia;
+      totalPulse += r.pulse;
+      const status = getStatus(r.sys, r.dia, r.pulse);
+      const emoji = getStatusEmoji(status);
+      return (i+1) + '. ' + r.date + ' · ' + formatTime(r.timeMinutes) + ' → ' + r.sys + '/' + r.dia + ' · Pulso ' + r.pulse + ' ' + emoji;
+    });
+    const avgSys = Math.round(totalSys / readings.length);
+    const avgDia = Math.round(totalDia / readings.length);
+    const avgPulse = Math.round(totalPulse / readings.length);
+    const now = new Date();
+    const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    const reportText = '💜 MARGARITA PRESSURE - Reporte\n📅 Generado: ' + today + '\n📋 Total: ' + readings.length + '\n\n' + lines.join('\n') + '\n\n📊 Promedio: ' + avgSys + '/' + avgDia + ' · Pulso ' + avgPulse;
+    box.innerHTML = '<p class="report-text">' + reportText.replace(/\n/g, '<br>') + '</p>';
+  }
 
-document.getElementById('btn-report').addEventListener('click', () => {
-  generateReport();
-  showScreen('screen-report');
-});
+  function copyReport() {
+    if (readings.length === 0) { showToast('No hay mediciones 💜'); return; }
+    let totalSys = 0, totalDia = 0, totalPulse = 0;
+    let lines = readings.map((r, i) => {
+      totalSys += r.sys; totalDia += r.dia; totalPulse += r.pulse;
+      const status = getStatus(r.sys, r.dia, r.pulse);
+      const emoji = getStatusEmoji(status);
+      return (i+1) + '. ' + r.date + ' · ' + formatTime(r.timeMinutes) + ' → ' + r.sys + '/' + r.dia + ' · Pulso ' + r.pulse + ' ' + emoji;
+    });
+    const avgSys = Math.round(totalSys / readings.length);
+    const avgDia = Math.round(totalDia / readings.length);
+    const avgPulse = Math.round(totalPulse / readings.length);
+    const now = new Date();
+    const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    const text = '💜 MARGARITA PRESSURE - Reporte\n📅 Generado: ' + today + '\n📋 Total: ' + readings.length + '\n\n' + lines.join('\n') + '\n\n📊 Promedio: ' + avgSys + '/' + avgDia + ' · Pulso ' + avgPulse;
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '0';
+    ta.style.top = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    try {
+      document.execCommand('copy');
+      showToast('✅ Reporte copiado 💜');
+    } catch(e) {
+      showToast('❌ No se pudo copiar');
+    }
+    document.body.removeChild(ta);
+  }
 
-document.getElementById('btn-next').addEventListener('click', () => {
-  document.getElementById('confirm-bp').textContent = sysValue + ' / ' + diaValue;
-  document.getElementById('confirm-pulse').textContent = '❤️ Pulso: ' + pulseValue;
-  document.getElementById('confirm-time').textContent = '🕐 ' + formatTime(timeMinutes);
-  showScreen('screen-confirm');
-});
+  function showToast(msg) {
+    let toast = document.getElementById('toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#4caf50;color:#fff;padding:16px 24px;border-radius:12px;font-size:16px;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.4);text-align:center;max-width:90%;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 3000);
+  }
 
-document.getElementById('btn-back').addEventListener('click', () => {
-  showScreen('screen-register');
-});
+  function saveReading() {
+    let dateStr;
+    if (manualMode) {
+      dateStr = manualYear + '-' + String(manualMonth+1).padStart(2,'0') + '-' + String(manualDay).padStart(2,'0');
+    } else {
+      const now = new Date();
+      dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    }
+    const reading = { id: Date.now(), sys: sysValue, dia: diaValue, pulse: pulseValue, timeMinutes: timeMinutes, date: dateStr };
+    readings.unshift(reading);
+    localStorage.setItem('margarita_readings', JSON.stringify(readings));
+  }
 
-document.getElementById('btn-home-from-register').addEventListener('click', () => {
-  showScreen('screen-home');
-});
+  function updateHomeDisplay() {
+    if (readings.length === 0) {
+      document.getElementById('last-value').textContent = '-- / --';
+      document.getElementById('last-pulse').textContent = 'Pulso: --';
+      document.getElementById('last-date').textContent = 'Sin registros aún';
+      return;
+    }
+    const last = readings[0];
+    document.getElementById('last-value').textContent = last.sys + ' / ' + last.dia;
+    document.getElementById('last-pulse').textContent = 'Pulso: ' + last.pulse;
+    document.getElementById('last-date').textContent = last.date + ' · ' + formatTime(last.timeMinutes);
+  }
 
-document.getElementById('btn-home-from-history').addEventListener('click', () => {
-  showScreen('screen-home');
-});
+  // 🔘 NAVEGACIÓN
+  document.getElementById('btn-new').addEventListener('click', () => {
+    manualMode = false;
+    document.getElementById('manual-fields').classList.remove('visible');
+    setCurrentTime();
+    updateDisplays();
+    showScreen('screen-register');
+  });
 
-document.getElementById('btn-home-from-report').addEventListener('click', () => {
-  showScreen('screen-home');
-});
+  document.getElementById('btn-manual').addEventListener('click', () => {
+    manualMode = true;
+    const now = new Date();
+    manualDay = now.getDate();
+    manualMonth = now.getMonth();
+    manualYear = now.getFullYear();
+    updateManualDisplay();
+    document.getElementById('manual-fields').classList.add('visible');
+    setCurrentTime();
+    updateDisplays();
+    showScreen('screen-register');
+  });
 
-// ✅ GUARDAR
-document.getElementById('btn-save').addEventListener('click', () => {
-  saveReading();
-  playDing();
-  vibrate();
-  updateHomeDisplay();
-  showScreen('screen-home');
-});
+  document.getElementById('btn-history').addEventListener('click', () => {
+    renderHistory();
+    showScreen('screen-history');
+  });
 
-// 📋 COPIAR REPORTE
-document.getElementById('btn-copy-report').addEventListener('click', () => {
-  copyReport();
-});
+  document.getElementById('btn-report').addEventListener('click', () => {
+    generateReport();
+    showScreen('screen-report');
+  });
 
-// 🗑️ BORRAR (doble confirmación)
-document.getElementById('history-list').addEventListener('click', (e) => {
-  if (e.target.classList.contains('history-card-delete')) {
-    const id = Number(e.target.dataset.id);
-    if (confirm('¿Borrar esta medición?')) {
-      if (confirm('¿Estás segura? No se puede deshacer.')) {
-        readings = readings.filter(r => r.id !== id);
-        localStorage.setItem('margarita_readings', JSON.stringify(readings));
-        renderHistory();
-        updateHomeDisplay();
+  document.getElementById('btn-next').addEventListener('click', () => {
+    document.getElementById('confirm-bp').textContent = sysValue + ' / ' + diaValue;
+    document.getElementById('confirm-pulse').textContent = '❤️ Pulso: ' + pulseValue;
+    document.getElementById('confirm-time').textContent = '🕐 ' + formatTime(timeMinutes);
+    showScreen('screen-confirm');
+  });
+
+  document.getElementById('btn-back').addEventListener('click', () => {
+    showScreen('screen-register');
+  });
+
+  document.getElementById('btn-home-from-register').addEventListener('click', () => {
+    showScreen('screen-home');
+  });
+
+  document.getElementById('btn-home-from-history').addEventListener('click', () => {
+    showScreen('screen-home');
+  });
+
+  document.getElementById('btn-home-from-report').addEventListener('click', () => {
+    showScreen('screen-home');
+  });
+
+  // ✅ GUARDAR
+  document.getElementById('btn-save').addEventListener('click', () => {
+    saveReading();
+    playDing();
+    vibrate();
+    updateHomeDisplay();
+    showScreen('screen-home');
+  });
+
+  // 📋 COPIAR
+  document.getElementById('btn-copy-report').addEventListener('click', () => { copyReport(); });
+
+  // 🗑️ BORRAR
+  document.getElementById('history-list').addEventListener('click', (e) => {
+    if (e.target.classList.contains('history-card-delete')) {
+      const id = Number(e.target.dataset.id);
+      if (confirm('¿Borrar esta medición?')) {
+        if (confirm('¿Estás segura? No se puede deshacer.')) {
+          readings = readings.filter(r => r.id !== id);
+          localStorage.setItem('margarita_readings', JSON.stringify(readings));
+          renderHistory();
+          updateHomeDisplay();
+        }
       }
     }
-  }
-});
+  });
 
-// ➕➖ HORA
-document.getElementById('time-minus').addEventListener('click', () => {
-  timeMinutes -= 5;
-  if (timeMinutes < 0) timeMinutes = 1435;
-  updateTimeDisplay();
-});
+  // ➕➖ HORA
+  document.getElementById('time-minus').addEventListener('click', () => {
+    timeMinutes -= 5; if (timeMinutes < 0) timeMinutes = 1435; updateTimeDisplay();
+  });
+  document.getElementById('time-plus').addEventListener('click', () => {
+    timeMinutes += 5; if (timeMinutes >= 1440) timeMinutes = 0; updateTimeDisplay();
+  });
 
-document.getElementById('time-plus').addEventListener('click', () => {
-  timeMinutes += 5;
-  if (timeMinutes >= 1440) timeMinutes = 0;
-  updateTimeDisplay();
-});
+  // ➕➖ SISTÓLICA
+  document.getElementById('sys-minus').addEventListener('click', () => {
+    if (sysValue > 60) sysValue--; updateDisplays();
+  });
+  document.getElementById('sys-plus').addEventListener('click', () => {
+    if (sysValue < 250) sysValue++; updateDisplays();
+  });
 
-// ➕➖ SISTÓLICA
-document.getElementById('sys-minus').addEventListener('click', () => {
-  if (sysValue > 60) sysValue--;
-  updateDisplays();
-});
+  // ➕➖ DIASTÓLICA
+  document.getElementById('dia-minus').addEventListener('click', () => {
+    if (diaValue > 40) diaValue--; updateDisplays();
+  });
+  document.getElementById('dia-plus').addEventListener('click', () => {
+    if (diaValue < 150) diaValue++; updateDisplays();
+  });
 
-document.getElementById('sys-plus').addEventListener('click', () => {
-  if (sysValue < 250) sysValue++;
-  updateDisplays();
-});
+  // ➕➖ PULSO
+  document.getElementById('pulse-minus').addEventListener('click', () => {
+    if (pulseValue > 30) pulseValue--; updateDisplays();
+  });
+  document.getElementById('pulse-plus').addEventListener('click', () => {
+    if (pulseValue < 200) pulseValue++; updateDisplays();
+  });
 
-// ➕➖ DIASTÓLICA
-document.getElementById('dia-minus').addEventListener('click', () => {
-  if (diaValue > 40) diaValue--;
-  updateDisplays();
-});
+  // ➕➖ DÍA
+  document.getElementById('day-minus').addEventListener('click', () => {
+    if (manualDay > 1) manualDay--; updateManualDisplay();
+  });
+  document.getElementById('day-plus').addEventListener('click', () => {
+    const maxDays = getDaysInMonth(manualMonth, manualYear);
+    if (manualDay < maxDays) manualDay++; updateManualDisplay();
+  });
 
-document.getElementById('dia-plus').addEventListener('click', () => {
-  if (diaValue < 150) diaValue++;
-  updateDisplays();
-});
+  // ➕➖ MES
+  document.getElementById('month-minus').addEventListener('click', () => {
+    if (manualMonth > 0) manualMonth--;
+    const maxDays = getDaysInMonth(manualMonth, manualYear);
+    if (manualDay > maxDays) manualDay = maxDays;
+    updateManualDisplay();
+  });
+  document.getElementById('month-plus').addEventListener('click', () => {
+    if (manualMonth < 11) manualMonth++;
+    const maxDays = getDaysInMonth(manualMonth, manualYear);
+    if (manualDay > maxDays) manualDay = maxDays;
+    updateManualDisplay();
+  });
 
-// ➕➖ PULSO
-document.getElementById('pulse-minus').addEventListener('click', () => {
-  if (pulseValue > 30) pulseValue--;
-  updateDisplays();
-});
+  // ➕➖ AÑO
+  document.getElementById('year-minus').addEventListener('click', () => {
+    if (manualYear > 2020) manualYear--;
+    const maxDays = getDaysInMonth(manualMonth, manualYear);
+    if (manualDay > maxDays) manualDay = maxDays;
+    updateManualDisplay();
+  });
+  document.getElementById('year-plus').addEventListener('click', () => {
+    if (manualYear < 2030) manualYear++;
+    const maxDays = getDaysInMonth(manualMonth, manualYear);
+    if (manualDay > maxDays) manualDay = maxDays;
+    updateManualDisplay();
+  });
 
-document.getElementById('pulse-plus').addEventListener('click', () => {
-  if (pulseValue < 200) pulseValue++;
-  updateDisplays();
-});
-
-// ➕➖ DÍA
-document.getElementById('day-minus').addEventListener('click', () => {
-  if (manualDay > 1) manualDay--;
-  updateManualDisplay();
-});
-
-document.getElementById('day-plus').addEventListener('click', () => {
-  const maxDays = getDaysInMonth(manualMonth, manualYear);
-  if (manualDay < maxDays) manualDay++;
-  updateManualDisplay();
-});
-
-// ➕➖ MES
-document.getElementById('month-minus').addEventListener('click', () => {
-  if (manualMonth > 0) manualMonth--;
-  // Ajustar día si el nuevo mes tiene menos días
-  const maxDays = getDaysInMonth(manualMonth, manualYear);
-  if (manualDay > maxDays) manualDay = maxDays;
-  updateManualDisplay();
-});
-
-document.getElementById('month-plus').addEventListener('click', () => {
-  if (manualMonth < 11) manualMonth++;
-  const maxDays = getDaysInMonth(manualMonth, manualYear);
-  if (manualDay > maxDays) manualDay = maxDays;
-  updateManualDisplay();
-});
-
-// ➕➖ AÑO
-document.getElementById('year-minus').addEventListener('click', () => {
-  if (manualYear > 2020) manualYear--;
-  const maxDays = getDaysInMonth(manualMonth, manualYear);
-  if (manualDay > maxDays) manualDay = maxDays;
-  updateManualDisplay();
-});
-
-document.getElementById('year-plus').addEventListener('click', () => {
-  if (manualYear < 2030) manualYear++;
-  const maxDays = getDaysInMonth(manualMonth, manualYear);
-  if (manualDay > maxDays) manualDay = maxDays;
-  updateManualDisplay();
-});
-
-// 🚀 AL CARGAR
-updateHomeDisplay();
-
-</script>
+  // 🚀 AL CARGAR
+  updateHomeDisplay();
+  </script>
 
 </body>
 </html>
