@@ -287,6 +287,29 @@
       white-space: pre-wrap;
       font-family: 'Courier New', monospace;
     }
+     /* 📝 MODO MANUAL */
+    .manual-fields {
+      display: none;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    .manual-fields.visible {
+      display: block;
+    }
+
+    .btn-discreet {
+      background: transparent;
+      border: 2px solid var(--text-secondary);
+      color: var(--text-secondary);
+      font-size: 16px;
+      padding: 14px 16px;
+      box-shadow: none;
+    }
+
+    .btn-discreet:active {
+      background: rgba(255,255,255,0.05);
+    }   
   </style>
 </head>
 <body>
@@ -304,12 +327,41 @@
       <button class="btn btn-purple" id="btn-new">➕ NUEVA MEDICIÓN</button>
       <button class="btn btn-blue" id="btn-history">📋 HISTORIAL</button>
       <button class="btn btn-green" id="btn-report">📄 REPORTE</button>
+      <button class="btn btn-discreet" id="btn-manual">📝 Agregar manual</button>
     </div>
-  </div>
 
   <!-- 📱 PANTALLA 2: REGISTRO -->
   <div id="screen-register" class="screen">
     <h2 class="register-title">📝 Nueva Medición</h2>
+    <!-- 📅 FECHA (solo visible en modo manual) -->
+    <div class="manual-fields" id="manual-fields">
+      <div class="reg-row">
+        <span class="reg-label">📅 Día</span>
+        <div class="reg-control">
+          <button class="btn-step" id="day-minus">−</button>
+          <span class="reg-value" id="day-value">1</span>
+          <button class="btn-step" id="day-plus">＋</button>
+        </div>
+      </div>
+
+      <div class="reg-row">
+        <span class="reg-label">📅 Mes</span>
+        <div class="reg-control">
+          <button class="btn-step" id="month-minus">−</button>
+          <span class="reg-value" id="month-value">Ene</span>
+          <button class="btn-step" id="month-plus">＋</button>
+        </div>
+      </div>
+
+      <div class="reg-row">
+        <span class="reg-label">📅 Año</span>
+        <div class="reg-control">
+          <button class="btn-step" id="year-minus">−</button>
+          <span class="reg-value" id="year-value">2026</span>
+          <button class="btn-step" id="year-plus">＋</button>
+        </div>
+      </div>
+    </div>    
 
     <div class="reg-row">
       <span class="reg-label">🕐 Hora</span>
