@@ -390,7 +390,32 @@ function showScreen(id) {
 let sysValue = 120;
 let diaValue = 80;
 let pulseValue = 72;
-let timeMinutes = 0; // minutos desde medianoche
+let timeMinutes = 0;
+
+// 💾 LECTURAS GUARDADAS
+let readings = JSON.parse(localStorage.getItem('margarita_readings')) || [];
+
+// 🔔 SONIDO "DING"
+function playDing() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+// 📳 VIBRACIÓN
+function vibrate() {
+  if (navigator.vibrate) navigator.vibrate(100);
+}
 
 // 🕐 HORA: convertir minutos a formato 12h
 function formatTime(mins) {
@@ -402,7 +427,7 @@ function formatTime(mins) {
   return h12 + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
 }
 
-// 🕐 HORA: actualizar en pantalla
+// 🕐 Actualizar hora en pantalla
 function updateTimeDisplay() {
   document.getElementById('time-value').textContent = formatTime(timeMinutes);
 }
@@ -415,13 +440,43 @@ function updateDisplays() {
   updateTimeDisplay();
 }
 
-// 📱 Al entrar a REGISTRO: poner hora actual
+// 🕐 Poner hora actual al entrar a REGISTRO
 function setCurrentTime() {
   const now = new Date();
   timeMinutes = now.getHours() * 60 + now.getMinutes();
-  // Redondear a 5 min más cercano
   timeMinutes = Math.round(timeMinutes / 5) * 5;
   if (timeMinutes >= 1440) timeMinutes = 0;
+}
+
+// 💾 GUARDAR MEDICIÓN
+function saveReading() {
+  const now = new Date();
+  const reading = {
+    id: Date.now(),
+    sys: sysValue,
+    dia: diaValue,
+    pulse: pulseValue,
+    timeMinutes: timeMinutes,
+    date: now.getFullYear() + '-' +
+      String(now.getMonth() + 1).padStart(2, '0') + '-' +
+      String(now.getDate()).padStart(2, '0')
+  };
+  readings.unshift(reading); // nueva al inicio
+  localStorage.setItem('margarita_readings', JSON.stringify(readings));
+}
+
+// 🏠 MOSTRAR ÚLTIMA MEDICIÓN EN HOME
+function updateHomeDisplay() {
+  if (readings.length === 0) {
+    document.getElementById('last-value').textContent = '-- / --';
+    document.getElementById('last-pulse').textContent = 'Pulso: --';
+    document.getElementById('last-date').textContent = 'Sin registros aún';
+    return;
+  }
+  const last = readings[0];
+  document.getElementById('last-value').textContent = last.sys + ' / ' + last.dia;
+  document.getElementById('last-pulse').textContent = 'Pulso: ' + last.pulse;
+  document.getElementById('last-date').textContent = last.date + ' · ' + formatTime(last.timeMinutes);
 }
 
 // 🔘 NAVEGACIÓN
@@ -440,7 +495,6 @@ document.getElementById('btn-report').addEventListener('click', () => {
 });
 
 document.getElementById('btn-next').addEventListener('click', () => {
-  // Actualizar pantalla CONFIRMAR con valores reales
   document.getElementById('confirm-bp').textContent = sysValue + ' / ' + diaValue;
   document.getElementById('confirm-pulse').textContent = '❤️ Pulso: ' + pulseValue;
   document.getElementById('confirm-time').textContent = '🕐 ' + formatTime(timeMinutes);
@@ -463,7 +517,16 @@ document.getElementById('btn-home-from-report').addEventListener('click', () => 
   showScreen('screen-home');
 });
 
-// ➕➖ HORA (saltos de 5 min)
+// ✅ GUARDAR
+document.getElementById('btn-save').addEventListener('click', () => {
+  saveReading();
+  playDing();
+  vibrate();
+  updateHomeDisplay();
+  showScreen('screen-home');
+});
+
+// ➕➖ HORA
 document.getElementById('time-minus').addEventListener('click', () => {
   timeMinutes -= 5;
   if (timeMinutes < 0) timeMinutes = 1435;
@@ -476,7 +539,7 @@ document.getElementById('time-plus').addEventListener('click', () => {
   updateTimeDisplay();
 });
 
-// ➕➖ SISTÓLICA (60 a 250)
+// ➕➖ SISTÓLICA
 document.getElementById('sys-minus').addEventListener('click', () => {
   if (sysValue > 60) sysValue--;
   updateDisplays();
@@ -487,7 +550,7 @@ document.getElementById('sys-plus').addEventListener('click', () => {
   updateDisplays();
 });
 
-// ➕➖ DIASTÓLICA (40 a 150)
+// ➕➖ DIASTÓLICA
 document.getElementById('dia-minus').addEventListener('click', () => {
   if (diaValue > 40) diaValue--;
   updateDisplays();
@@ -498,7 +561,7 @@ document.getElementById('dia-plus').addEventListener('click', () => {
   updateDisplays();
 });
 
-// ➕➖ PULSO (30 a 200)
+// ➕➖ PULSO
 document.getElementById('pulse-minus').addEventListener('click', () => {
   if (pulseValue > 30) pulseValue--;
   updateDisplays();
@@ -508,6 +571,9 @@ document.getElementById('pulse-plus').addEventListener('click', () => {
   if (pulseValue < 200) pulseValue++;
   updateDisplays();
 });
+
+// 🚀 AL CARGAR: mostrar última medición
+updateHomeDisplay();
 
 </script>
 
