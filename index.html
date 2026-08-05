@@ -453,6 +453,13 @@ let diaValue = 80;
 let pulseValue = 72;
 let timeMinutes = 0;
 
+// 📝 MODO MANUAL
+let manualMode = false;
+let manualDay = 1;
+let manualMonth = 0; // 0 = Enero, 11 = Diciembre
+let manualYear = 2026;
+const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
 // 💾 LECTURAS GUARDADAS
 let readings = JSON.parse(localStorage.getItem('margarita_readings')) || [];
 
@@ -499,6 +506,19 @@ function updateDisplays() {
   updateTimeDisplay();
 }
 
+// 📅 Actualizar fecha manual en pantalla
+function updateManualDisplay() {
+  document.getElementById('day-value').textContent = manualDay;
+  document.getElementById('month-value').textContent = MONTHS[manualMonth];
+  document.getElementById('year-value').textContent = manualYear;
+}
+
+// 📅 Días según mes
+function getDaysInMonth(month, year) {
+  return new Date(year, month + 1, 0).getDate();
+}
+
+// 🕐 Poner hora actual al entrar a REGISTRO
 function setCurrentTime() {
   const now = new Date();
   timeMinutes = now.getHours() * 60 + now.getMinutes();
@@ -610,7 +630,6 @@ function copyReport() {
     lines.join('\n') + '\n\n' +
     '📊 Promedio: ' + avgSys + '/' + avgDia + ' · Pulso ' + avgPulse;
 
-  // Método textarea (más compatible con celulares)
   const ta = document.createElement('textarea');
   ta.value = text;
   ta.style.position = 'fixed';
@@ -626,13 +645,12 @@ function copyReport() {
     document.execCommand('copy');
     showToast('✅ Reporte copiado. Pégalo en WhatsApp 💜');
   } catch(e) {
-    showToast('❌ No se pudo copiar. Selecciona el texto manualmente.');
+    showToast('❌ No se pudo copiar.');
   }
-
   document.body.removeChild(ta);
 }
 
-// 💬 TOAST (mensaje temporal sin alert)
+// 💬 TOAST
 function showToast(msg) {
   let toast = document.getElementById('toast');
   if (!toast) {
@@ -648,16 +666,27 @@ function showToast(msg) {
 
 // 💾 GUARDAR MEDICIÓN
 function saveReading() {
-  const now = new Date();
+  let dateStr;
+  if (manualMode) {
+    // Usar fecha manual
+    dateStr = manualYear + '-' +
+      String(manualMonth + 1).padStart(2, '0') + '-' +
+      String(manualDay).padStart(2, '0');
+  } else {
+    // Usar fecha actual
+    const now = new Date();
+    dateStr = now.getFullYear() + '-' +
+      String(now.getMonth() + 1).padStart(2, '0') + '-' +
+      String(now.getDate()).padStart(2, '0');
+  }
+
   const reading = {
     id: Date.now(),
     sys: sysValue,
     dia: diaValue,
     pulse: pulseValue,
     timeMinutes: timeMinutes,
-    date: now.getFullYear() + '-' +
-      String(now.getMonth() + 1).padStart(2, '0') + '-' +
-      String(now.getDate()).padStart(2, '0')
+    date: dateStr
   };
   readings.unshift(reading);
   localStorage.setItem('margarita_readings', JSON.stringify(readings));
@@ -679,6 +708,22 @@ function updateHomeDisplay() {
 
 // 🔘 NAVEGACIÓN
 document.getElementById('btn-new').addEventListener('click', () => {
+  manualMode = false;
+  document.getElementById('manual-fields').classList.remove('visible');
+  setCurrentTime();
+  updateDisplays();
+  showScreen('screen-register');
+});
+
+document.getElementById('btn-manual').addEventListener('click', () => {
+  manualMode = true;
+  // Poner fecha actual por defecto
+  const now = new Date();
+  manualDay = now.getDate();
+  manualMonth = now.getMonth();
+  manualYear = now.getFullYear();
+  updateManualDisplay();
+  document.getElementById('manual-fields').classList.add('visible');
   setCurrentTime();
   updateDisplays();
   showScreen('screen-register');
@@ -790,6 +835,49 @@ document.getElementById('pulse-minus').addEventListener('click', () => {
 document.getElementById('pulse-plus').addEventListener('click', () => {
   if (pulseValue < 200) pulseValue++;
   updateDisplays();
+});
+
+// ➕➖ DÍA
+document.getElementById('day-minus').addEventListener('click', () => {
+  if (manualDay > 1) manualDay--;
+  updateManualDisplay();
+});
+
+document.getElementById('day-plus').addEventListener('click', () => {
+  const maxDays = getDaysInMonth(manualMonth, manualYear);
+  if (manualDay < maxDays) manualDay++;
+  updateManualDisplay();
+});
+
+// ➕➖ MES
+document.getElementById('month-minus').addEventListener('click', () => {
+  if (manualMonth > 0) manualMonth--;
+  // Ajustar día si el nuevo mes tiene menos días
+  const maxDays = getDaysInMonth(manualMonth, manualYear);
+  if (manualDay > maxDays) manualDay = maxDays;
+  updateManualDisplay();
+});
+
+document.getElementById('month-plus').addEventListener('click', () => {
+  if (manualMonth < 11) manualMonth++;
+  const maxDays = getDaysInMonth(manualMonth, manualYear);
+  if (manualDay > maxDays) manualDay = maxDays;
+  updateManualDisplay();
+});
+
+// ➕➖ AÑO
+document.getElementById('year-minus').addEventListener('click', () => {
+  if (manualYear > 2020) manualYear--;
+  const maxDays = getDaysInMonth(manualMonth, manualYear);
+  if (manualDay > maxDays) manualDay = maxDays;
+  updateManualDisplay();
+});
+
+document.getElementById('year-plus').addEventListener('click', () => {
+  if (manualYear < 2030) manualYear++;
+  const maxDays = getDaysInMonth(manualMonth, manualYear);
+  if (manualDay > maxDays) manualDay = maxDays;
+  updateManualDisplay();
 });
 
 // 🚀 AL CARGAR
