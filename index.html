@@ -336,6 +336,26 @@
 
 .history-card-delete:active {
   opacity: 1;
+}
+/* 📄 REPORTE */
+.report-box {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 20px 16px;
+  width: 100%;
+  max-width: 340px;
+  margin-bottom: 24px;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 55vh;
+}
+
+.report-text {
+  font-size: 16px;
+  color: var(--white);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  font-family: 'Courier New', monospace;
 }    
   </style>
 </head>
@@ -435,7 +455,7 @@
 </div>
 
 <!-- 📱 PANTALLA 4: HISTORIAL -->
-<div id="screen-history" class="screen active">
+<div id="screen-history" class="screen">
 
   <h2 class="register-title">📋 Historial</h2>
 
@@ -449,11 +469,23 @@
 
 </div>
 
-  <!-- 📱 PANTALLA 5: REPORTE -->
-  <div id="screen-report" class="screen">
-    <h1>📄 REPORTE</h1>
+<!-- 📱 PANTALLA 5: REPORTE -->
+<div id="screen-report" class="screen active">
+
+  <h2 class="register-title">📄 Reporte</h2>
+
+  <!-- Área del reporte (se llena con JS) -->
+  <div class="report-box" id="report-box">
+    <p class="history-empty">Genera un reporte desde el historial 💜</p>
   </div>
 
+  <!-- Botones -->
+  <div class="confirm-buttons">
+    <button class="btn btn-blue btn-full" id="btn-copy-report">📋 Copiar reporte</button>
+    <button class="btn btn-back btn-full" id="btn-home-from-report">← Volver</button>
+  </div>
+
+</div>
   <script>
     // 🧠 Aquí irá toda la lógica (próximos pasos)
   </script>
