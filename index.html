@@ -37,7 +37,6 @@
       --text-secondary: #b0bec5;
     }
 
-    /* 🔄 RESET */
     * {
       margin: 0;
       padding: 0;
@@ -52,7 +51,6 @@
       overflow-x: hidden;
     }
 
-    /* 📱 PANTALLAS */
     .screen {
       display: none;
       min-height: 100vh;
@@ -87,29 +85,12 @@
       gap: 6px;
     }
 
-    .last-label {
-      font-size: 16px;
-      color: var(--text-secondary);
-    }
+    .last-label { font-size: 16px; color: var(--text-secondary); }
+    .last-value { font-size: 52px; font-weight: 700; color: var(--white); }
+    .last-pulse { font-size: 22px; color: var(--blue-light); }
+    .last-date { font-size: 15px; color: var(--text-secondary); margin-top: 8px; }
 
-    .last-value {
-      font-size: 52px;
-      font-weight: 700;
-      color: var(--white);
-    }
-
-    .last-pulse {
-      font-size: 22px;
-      color: var(--blue-light);
-    }
-
-    .last-date {
-      font-size: 15px;
-      color: var(--text-secondary);
-      margin-top: 8px;
-    }
-
-    /* 🔘 BOTONES GIGANTES */
+    /* 🔘 BOTONES */
     .home-buttons {
       display: flex;
       flex-direction: column;
@@ -129,24 +110,11 @@
       transition: transform 0.15s, box-shadow 0.15s;
     }
 
-    .btn:active {
-      transform: scale(0.96);
-    }
+    .btn:active { transform: scale(0.96); }
 
-    .btn-purple {
-      background: var(--purple);
-      box-shadow: 0 4px 20px rgba(142, 36, 170, 0.4);
-    }
-
-    .btn-blue {
-      background: var(--blue);
-      box-shadow: 0 4px 20px rgba(25, 118, 210, 0.4);
-    }
-
-    .btn-green {
-      background: var(--green);
-      box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
-    }
+    .btn-purple { background: var(--purple); box-shadow: 0 4px 20px rgba(142,36,170,0.4); }
+    .btn-blue { background: var(--blue); box-shadow: 0 4px 20px rgba(25,118,210,0.4); }
+    .btn-green { background: var(--green); box-shadow: 0 4px 20px rgba(76,175,80,0.4); }
 
     /* 📝 REGISTRO */
     .register-title {
@@ -185,7 +153,6 @@
       text-align: center;
     }
 
-    /* 🔘 BOTONES +/− GIGANTES */
     .btn-step {
       width: 72px;
       height: 72px;
@@ -202,16 +169,9 @@
       transition: transform 0.1s, background 0.2s;
     }
 
-    .btn-step:active {
-      transform: scale(0.9);
-      background: var(--blue-light);
-    }
+    .btn-step:active { transform: scale(0.9); background: var(--blue-light); }
 
-    .btn-full {
-      width: 100%;
-      max-width: 340px;
-      margin-top: 20px;
-    }
+    .btn-full { width: 100%; max-width: 340px; margin-top: 20px; }
 
     /* ✅ CONFIRMAR */
     .confirm-card {
@@ -227,21 +187,9 @@
       gap: 10px;
     }
 
-    .confirm-bp {
-      font-size: 56px;
-      font-weight: 700;
-      color: var(--white);
-    }
-
-    .confirm-pulse {
-      font-size: 26px;
-      color: var(--blue-light);
-    }
-
-    .confirm-time {
-      font-size: 20px;
-      color: var(--text-secondary);
-    }
+    .confirm-bp { font-size: 56px; font-weight: 700; color: var(--white); }
+    .confirm-pulse { font-size: 26px; color: var(--blue-light); }
+    .confirm-time { font-size: 20px; color: var(--text-secondary); }
 
     .confirm-buttons {
       width: 100%;
@@ -258,9 +206,7 @@
       box-shadow: none;
     }
 
-    .btn-back:active {
-      background: rgba(255,255,255,0.05);
-    }
+    .btn-back:active { background: rgba(255,255,255,0.05); }
 
     /* 📋 HISTORIAL */
     .history-list {
@@ -292,39 +238,14 @@
       align-items: center;
     }
 
-    .history-card.warning {
-      border-left-color: var(--yellow);
-    }
+    .history-card.warning { border-left-color: var(--yellow); }
+    .history-card.danger { border-left-color: var(--red); }
 
-    .history-card.danger {
-      border-left-color: var(--red);
-    }
-
-    .history-card-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .history-card-bp {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--white);
-    }
-
-    .history-card-pulse {
-      font-size: 18px;
-      color: var(--blue-light);
-    }
-
-    .history-card-date {
-      font-size: 14px;
-      color: var(--text-secondary);
-    }
-
-    .history-card-status {
-      font-size: 28px;
-    }
+    .history-card-info { display: flex; flex-direction: column; gap: 2px; }
+    .history-card-bp { font-size: 28px; font-weight: 700; color: var(--white); }
+    .history-card-pulse { font-size: 18px; color: var(--blue-light); }
+    .history-card-date { font-size: 14px; color: var(--text-secondary); }
+    .history-card-status { font-size: 28px; }
 
     .history-card-delete {
       background: none;
@@ -335,9 +256,7 @@
       padding: 4px;
     }
 
-    .history-card-delete:active {
-      opacity: 1;
-    }
+    .history-card-delete:active { opacity: 1; }
 
     /* 📄 REPORTE */
     .report-box {
@@ -366,7 +285,7 @@
   <!-- 📱 PANTALLA 1: HOME -->
   <div id="screen-home" class="screen active">
     <h1 class="app-title">💜 Margarita Pressure</h1>
-    <div class="last-reading" id="last-reading">
+    <div class="last-reading">
       <span class="last-label">Última medición</span>
       <span class="last-value" id="last-value">-- / --</span>
       <span class="last-pulse" id="last-pulse">Pulso: --</span>
@@ -383,7 +302,7 @@
   <div id="screen-register" class="screen">
     <h2 class="register-title">📝 Nueva Medición</h2>
 
-    <div class="reg-row" id="row-time">
+    <div class="reg-row">
       <span class="reg-label">🕐 Hora</span>
       <div class="reg-control">
         <button class="btn-step" id="time-minus">−</button>
@@ -420,6 +339,7 @@
     </div>
 
     <button class="btn btn-purple btn-full" id="btn-next">SIGUIENTE ➡️</button>
+    <button class="btn btn-back btn-full" id="btn-home-from-register">← Volver</button>
   </div>
 
   <!-- 📱 PANTALLA 3: CONFIRMAR -->
@@ -460,7 +380,6 @@
   <script>
     // 🧠 MARGARITA PRESSURE - Cerebro
 
-    // 📱 SISTEMA DE PANTALLAS
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(id).classList.add('active');
@@ -479,8 +398,16 @@
       showScreen('screen-report');
     });
 
+    document.getElementById('btn-next').addEventListener('click', () => {
+      showScreen('screen-confirm');
+    });
+
     document.getElementById('btn-back').addEventListener('click', () => {
       showScreen('screen-register');
+    });
+
+    document.getElementById('btn-home-from-register').addEventListener('click', () => {
+      showScreen('screen-home');
     });
 
     document.getElementById('btn-home-from-history').addEventListener('click', () => {
