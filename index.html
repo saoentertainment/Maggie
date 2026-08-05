@@ -1,432 +1,102 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Margarita Pressure 💜</title>
-    <style>
-        :root {
-            --bg-dark: #0a1929;
-            --card-bg: #132f4c;
-            --blue-primary: #1976d2;
-            --blue-light: #64b5f6;
-            --purple-accent: #8e24aa;
-            --green-ok: #4caf50;
-            --text-main: #e3f2fd;
-            --font-size-big: 1.3rem;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💜 Margarita Pressure</title>
+  <meta name="description" content="Registro de presión arterial para Irma Margarita">
+  <meta name="theme-color" content="#0a1929">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+  <!-- 📱 Manifest PWA inline -->
+  <script type="application/json" id="pwa-manifest">
+  {
+    "name": "Margarita Pressure",
+    "short_name": "MargaritaBP",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0a1929",
+    "theme_color": "#0a1929",
+    "icons": []
+  }
+  </script>
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding: 20px;
-            font-size: var(--font-size-big);
-        }
+  <style>
+    /* 🎨 PALETA TOTAL FEST */
+    :root {
+      --bg-dark: #0a1929;
+      --card: #132f4c;
+      --blue: #1976d2;
+      --blue-light: #64b5f6;
+      --purple: #8e24aa;
+      --green: #4caf50;
+      --yellow: #ffca28;
+      --red: #ef5350;
+      --white: #ffffff;
+      --text-secondary: #b0bec5;
+    }
 
-        .app-header { text-align: center; padding: 20px 0; }
-        .app-header h1 { color: var(--blue-light); font-size: 1.8rem; }
-        .app-header p { color: var(--purple-accent); font-size: 1rem; margin-top: 5px; }
+    /* 🔄 RESET */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        .upload-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 30px;
-            gap: 15px;
-        }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg-dark);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-        .btn-upload {
-            background: linear-gradient(135deg, var(--blue-primary), var(--purple-accent));
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 25px 40px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(25, 118, 210, 0.4);
-            transition: transform 0.2s;
-            text-align: center;
-        }
+    /* 📱 PANTALLAS (solo 1 visible a la vez) */
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 24px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
 
-        .btn-upload:active { transform: scale(0.95); }
-
-        .btn-upload span {
-            display: block;
-            font-size: 2.5rem;
-            margin-bottom: 8px;
-        }
-
-        #fileInput { display: none; }
-
-        .preview-container { margin-top: 20px; text-align: center; }
-
-        .preview-container img {
-            max-width: 100%;
-            border-radius: 15px;
-            border: 3px solid var(--blue-light);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .status-msg {
-            margin-top: 15px;
-            color: var(--blue-light);
-            font-size: 1.2rem;
-            text-align: center;
-        }
-
-        .raw-text {
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 10px;
-            white-space: pre-wrap;
-            text-align: left;
-            font-size: 1rem;
-            border: 1px solid var(--blue-primary);
-        }
-    </style>
+    .screen.active {
+      display: flex;
+    }
+  </style>
 </head>
 <body>
 
-    <header class="app-header">
-        <h1>💜 Margarita Pressure</h1>
-        <p>Para Irma Margarita, con amor</p>
-    </header>
+  <!-- 📱 PANTALLA 1: HOME -->
+  <div id="screen-home" class="screen active">
+    <h1>🏠 HOME</h1>
+  </div>
 
-    <section class="upload-section">
-        <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
-            <span>📷</span>
-            Medir mi presión
-        </button>
-        <input type="file" id="fileInput" accept="image/*">
-    </section>
+  <!-- 📱 PANTALLA 2: REGISTRO -->
+  <div id="screen-register" class="screen">
+    <h1>📝 REGISTRO</h1>
+  </div>
 
-    <div class="preview-container" id="previewContainer"></div>
+  <!-- 📱 PANTALLA 3: CONFIRMAR -->
+  <div id="screen-confirm" class="screen">
+    <h1>✅ CONFIRMAR</h1>
+  </div>
 
-    <script>
-        const fileInput = document.getElementById('fileInput');
-        const previewContainer = document.getElementById('previewContainer');
+  <!-- 📱 PANTALLA 4: HISTORIAL -->
+  <div id="screen-history" class="screen">
+    <h1>📋 HISTORIAL</h1>
+  </div>
 
-        // 🥽 FOTO: chica + blanco/negro con umbral OTSU (anti-reflejos)
-        async function prepararFoto(file) {
-            const img = new Image();
-            img.src = URL.createObjectURL(file);
-            await img.decode();
+  <!-- 📱 PANTALLA 5: REPORTE -->
+  <div id="screen-report" class="screen">
+    <h1>📄 REPORTE</h1>
+  </div>
 
-            let escala = 500 / img.width;
-            if (escala > 2) escala = 2;
+  <script>
+    // 🧠 Aquí irá toda la lógica (próximos pasos)
+  </script>
 
-            const canvas = document.createElement('canvas');
-            canvas.width = Math.round(img.width * escala);
-            canvas.height = Math.round(img.height * escala);
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const d = imageData.data;
-
-            let suma = 0;
-            const total = d.length / 4;
-            const grises = new Array(total);
-            for (let i = 0; i < d.length; i += 4) {
-                const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-                grises[i / 4] = g;
-                suma += g;
-            }
-            const promedio = suma / total;
-            const oscura = promedio < 128;
-
-            // 📊 OTSU: umbral profesional que no se deslumbra
-            const hist = new Array(256).fill(0);
-            for (let i = 0; i < total; i++) hist[Math.min(255, Math.round(grises[i]))]++;
-            let sumAll = 0;
-            for (let i = 0; i < 256; i++) sumAll += i * hist[i];
-            let sumB = 0, wB = 0, varMax = -1, umbral = 128;
-            for (let t = 0; t < 256; t++) {
-                wB += hist[t];
-                if (wB === 0) continue;
-                const wF = total - wB;
-                if (wF === 0) break;
-                sumB += t * hist[t];
-                const dif = (sumB / wB) - ((sumAll - sumB) / wF);
-                const between = wB * wF * dif * dif;
-                if (between > varMax) { varMax = between; umbral = t; }
-            }
-
-            for (let i = 0; i < d.length; i += 4) {
-                let v = grises[i / 4] > umbral ? 255 : 0;
-                if (oscura) v = 255 - v;
-                d[i] = d[i + 1] = d[i + 2] = v;
-            }
-            ctx.putImageData(imageData, 0, 0);
-            return canvas;
-        }
-
-        // ➕ ENGROSAR: reconecta segmentos sueltos
-        function engrosar(d, w, h, pases) {
-            for (let pass = 0; pass < pases; pass++) {
-                const copia = d.slice();
-                for (let y = 0; y < h; y++) {
-                    for (let x = 0; x < w; x++) {
-                        const i = (y * w + x) * 4;
-                        if (copia[i] < 128) continue;
-                        let negro = false;
-                        for (let dy = -1; dy <= 1 && !negro; dy++) {
-                            for (let dx = -1; dx <= 1; dx++) {
-                                const nx = x + dx, ny = y + dy;
-                                if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
-                                if (copia[(ny * w + nx) * 4] < 128) { negro = true; break; }
-                            }
-                        }
-                        if (negro) d[i] = d[i + 1] = d[i + 2] = 0;
-                    }
-                }
-            }
-        }
-
-        // 🧩 PIEZAS conectadas
-        function encontrarPiezas(d, w, h) {
-            const labels = new Int32Array(w * h);
-            const piezas = [];
-            let next = 1;
-            for (let y = 0; y < h; y++) {
-                for (let x = 0; x < w; x++) {
-                    const i = y * w + x;
-                    if (labels[i] || d[i * 4] >= 128) continue;
-                    const etiqueta = next++;
-                    const pila = [i];
-                    labels[i] = etiqueta;
-                    let minX = x, maxX = x, minY = y, maxY = y, area = 0;
-                    while (pila.length) {
-                        const p = pila.pop();
-                        const px = p % w;
-                        const py = (p - px) / w;
-                        area++;
-                        if (px < minX) minX = px;
-                        if (px > maxX) maxX = px;
-                        if (py < minY) minY = py;
-                        if (py > maxY) maxY = py;
-                        if (px + 1 < w && !labels[p + 1] && d[(p + 1) * 4] < 128) { labels[p + 1] = etiqueta; pila.push(p + 1); }
-                        if (px > 0 && !labels[p - 1] && d[(p - 1) * 4] < 128) { labels[p - 1] = etiqueta; pila.push(p - 1); }
-                        if (py + 1 < h && !labels[p + w] && d[(p + w) * 4] < 128) { labels[p + w] = etiqueta; pila.push(p + w); }
-                        if (py > 0 && !labels[p - w] && d[(p - w) * 4] < 128) { labels[p - w] = etiqueta; pila.push(p - w); }
-                    }
-                    piezas.push({ minX, maxX, minY, maxY, area });
-                }
-            }
-            return { piezas, labels };
-        }
-
-        // 🧩 ROMPECABEZAS: flacas y planas se unen a vecinas cercanas
-        function unirPiezas(piezas) {
-            const usadas = new Set();
-            const resultado = [];
-            const esFlaca = p => (p.maxX - p.minX) < 0.5 * (p.maxY - p.minY);
-            const esPlana = p => (p.maxY - p.minY) < 0.45 * (p.maxX - p.minX);
-            for (const p of piezas) {
-                if (usadas.has(p)) continue;
-                let caja = { minX: p.minX, maxX: p.maxX, minY: p.minY, maxY: p.maxY, area: p.area };
-                if (esFlaca(p) || esPlana(p)) {
-                    for (const q of piezas) {
-                        if (q === p || usadas.has(q)) continue;
-                        const overlapX = Math.min(caja.maxX, q.maxX) - Math.max(caja.minX, q.minX);
-                        const overlapY = Math.min(caja.maxY, q.maxY) - Math.max(caja.minY, q.minY);
-                        const gapX = Math.max(q.minX - caja.maxX, caja.minX - q.maxX, 0);
-                        const gapY = Math.max(q.minY - caja.maxY, caja.minY - q.maxY, 0);
-                        const H = Math.max(caja.maxY - caja.minY, q.maxY - q.minY);
-                        if ((overlapX > 0 && gapY < 0.5 * H) || (overlapY > 0 && gapX < 0.3 * H)) {
-                            caja = {
-                                minX: Math.min(caja.minX, q.minX),
-                                maxX: Math.max(caja.maxX, q.maxX),
-                                minY: Math.min(caja.minY, q.minY),
-                                maxY: Math.max(caja.maxY, q.maxY),
-                                area: caja.area + q.area
-                            };
-                            usadas.add(q);
-                        }
-                    }
-                }
-                usadas.add(p);
-                resultado.push(caja);
-            }
-            return resultado;
-        }
-
-        // 🔢 DOMINÓ de 7 segmentos
-        const PATRONES = {
-            '0': 'abcdef', '1': 'bc', '2': 'abged', '3': 'abgcd', '4': 'fgbc',
-            '5': 'afgcd', '6': 'afgedc', '7': 'abc', '8': 'abcdefg', '9': 'abcfgd'
-        };
-
-        function decodificar(d, w, p) {
-            const W = p.maxX - p.minX, H = p.maxY - p.minY;
-            if (H < 15 || W < 6) return null;
-
-            const f = (rx0, ry0, rx1, ry1) => {
-                let neg = 0, tot = 0;
-                const x0 = Math.round(p.minX + rx0 * W), x1 = Math.round(p.minX + rx1 * W);
-                const y0 = Math.round(p.minY + ry0 * H), y1 = Math.round(p.minY + ry1 * H);
-                for (let y = y0; y <= y1; y++) {
-                    for (let x = x0; x <= x1; x++) {
-                        tot++;
-                        if (d[(y * w + x) * 4] < 128) neg++;
-                    }
-                }
-                return tot ? neg / tot : 0;
-            };
-
-            // 🎚️ Umbral adaptable al grosor de cada número
-            let negTot = 0;
-            for (let y = p.minY; y <= p.maxY; y++) {
-                for (let x = p.minX; x <= p.maxX; x++) {
-                    if (d[(y * w + x) * 4] < 128) negTot++;
-                }
-            }
-            const thr = Math.max(0.12, (negTot / (W * H)) * 0.45);
-
-            if (W < 0.45 * H) {
-                const b = f(0, 0.05, 1, 0.45), c = f(0, 0.55, 1, 0.95);
-                return (b > thr && c > thr) ? '1' : null;
-            }
-
-            const seg = {
-                a: f(0.25, 0.00, 0.75, 0.14),
-                b: f(0.72, 0.08, 1.00, 0.42),
-                c: f(0.72, 0.58, 1.00, 0.92),
-                d: f(0.25, 0.86, 0.75, 1.00),
-                e: f(0.00, 0.58, 0.28, 0.92),
-                f: f(0.00, 0.08, 0.28, 0.42),
-                g: f(0.25, 0.43, 0.75, 0.57)
-            };
-
-            let mejor = null, mejorScore = -1;
-            for (const num in PATRONES) {
-                let s = 0;
-                for (const k of 'abcdefg') {
-                    if ((seg[k] > thr) === PATRONES[num].includes(k)) s++;
-                }
-                if (s > mejorScore) { mejorScore = s; mejor = num; }
-            }
-            return mejorScore >= 6 ? mejor : null;
-        }
-
-        // 📚 Filas → 3 números
-        function leerDisplay(d, w, piezas) {
-            const decos = [];
-            for (const p of piezas) {
-                const num = decodificar(d, w, p);
-                if (num) decos.push({ minX: p.minX, maxX: p.maxX, minY: p.minY, maxY: p.maxY, num });
-            }
-            decos.sort((a, b) => (a.minY + a.maxY) - (b.minY + b.maxY));
-            const filas = [];
-            for (const dec of decos) {
-                const cy = (dec.minY + dec.maxY) / 2;
-                let fila = null;
-                for (const fl of filas) {
-                    if (Math.abs(fl.cy - cy) < 0.5 * (dec.maxY - dec.minY)) { fila = fl; break; }
-                }
-                if (fila) fila.items.push(dec);
-                else filas.push({ cy, items: [dec] });
-            }
-            const numeros = filas.map(fl => {
-                fl.items.sort((a, b) => a.minX - b.minX);
-                return fl.items.map(i => i.num).join('');
-            });
-            return { numeros, decos };
-        }
-
-        fileInput.addEventListener('change', async function () {
-            const file = this.files[0];
-            if (!file) return;
-
-            previewContainer.innerHTML = '<img src="' + URL.createObjectURL(file) + '" alt="Foto de tu medición">';
-            const status = document.createElement('p');
-            status.className = 'status-msg';
-            status.innerText = '🔍 Leyendo tu medición...';
-            previewContainer.appendChild(status);
-
-            try {
-                const canvas = await prepararFoto(file);
-                const ctx = canvas.getContext('2d');
-                const w = canvas.width, h = canvas.height;
-                const imageData = ctx.getImageData(0, 0, w, h);
-                const d = imageData.data;
-
-                // 🧹 BARRER ANTES DE ENGROSAR (respeta los palitos del "1")
-                const primera = encontrarPiezas(d, w, h);
-                for (let i = 0; i < primera.labels.length; i++) {
-                    const lab = primera.labels[i];
-                    if (!lab) continue;
-                    const pz = primera.piezas[lab - 1];
-                    const Hp = pz.maxY - pz.minY, Wp = pz.maxX - pz.minX;
-                    const esPalito = Hp >= 12 && Wp < 0.5 * Hp;
-                    if (pz.area < 150 && !esPalito) {
-                        d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = 255;
-                    }
-                }
-
-                // ➕ Engrosar sin puentes traidores
-                engrosar(d, w, h, 2);
-                ctx.putImageData(imageData, 0, 0);
-
-                const segundas = encontrarPiezas(d, w, h);
-                let piezas = segundas.piezas.filter(p => p.area >= 60 && p.area <= 0.05 * w * h);
-                piezas = unirPiezas(piezas);
-                const hMax = Math.max(...piezas.map(p => p.maxY - p.minY), 1);
-                piezas = piezas.filter(p => {
-                    const H = p.maxY - p.minY, W = p.maxX - p.minX;
-                    return H >= 0.4 * hMax && W <= 1.3 * H;
-                });
-
-                // ✂️ Cajas anchas = 2 números pegados → partir a la mitad
-                const finales = [];
-                for (const p of piezas) {
-                    const H = p.maxY - p.minY, W = p.maxX - p.minX;
-                    if (W > 0.85 * H) {
-                        const mid = Math.round((p.minX + p.maxX) / 2);
-                        finales.push({ minX: p.minX, maxX: mid, minY: p.minY, maxY: p.maxY });
-                        finales.push({ minX: mid + 1, maxX: p.maxX, minY: p.minY, maxY: p.maxY });
-                    } else {
-                        finales.push(p);
-                    }
-                }
-                piezas = finales;
-
-                const resultado = leerDisplay(d, w, piezas);
-
-                // 🎨 Cajitas verdes de debug
-                ctx.strokeStyle = '#4caf50';
-                ctx.lineWidth = 2;
-                ctx.fillStyle = '#4caf50';
-                ctx.font = 'bold 14px sans-serif';
-                for (const dec of resultado.decos) {
-                    ctx.strokeRect(dec.minX - 2, dec.minY - 2, dec.maxX - dec.minX + 4, dec.maxY - dec.minY + 4);
-                    ctx.fillText(dec.num, dec.minX, dec.minY - 5);
-                }
-
-                const vista = document.createElement('div');
-                vista.innerHTML = '<p class="status-msg">🤖 Así ve el robot:</p>';
-                const img = document.createElement('img');
-                img.src = canvas.toDataURL('image/png');
-                img.style.maxWidth = '100%';
-                img.style.borderRadius = '10px';
-                vista.appendChild(img);
-                previewContainer.appendChild(vista);
-
-                status.innerText = resultado.numeros.length === 3 ? '✅ ¡Lectura completa!' : '✅ Esto encontré:';
-                const raw = document.createElement('pre');
-                raw.className = 'raw-text';
-                raw.innerText = resultado.numeros.length ? resultado.numeros.join(' / ') : '(no encontré números 😅)';
-                previewContainer.appendChild(raw);
-            } catch (error) {
-                status.innerText = '❌ Ups, algo falló. Prueba con mejor luz 💡';
-            }
-        });
-    </script>
 </body>
 </html>
