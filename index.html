@@ -417,7 +417,7 @@ function vibrate() {
   if (navigator.vibrate) navigator.vibrate(100);
 }
 
-// 🕐 HORA: convertir minutos a formato 12h
+// 🕐 HORA: formato 12h
 function formatTime(mins) {
   let h = Math.floor(mins / 60);
   let m = mins % 60;
@@ -427,12 +427,10 @@ function formatTime(mins) {
   return h12 + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
 }
 
-// 🕐 Actualizar hora en pantalla
 function updateTimeDisplay() {
   document.getElementById('time-value').textContent = formatTime(timeMinutes);
 }
 
-// 🔢 Actualizar números en pantalla
 function updateDisplays() {
   document.getElementById('sys-value').textContent = sysValue;
   document.getElementById('dia-value').textContent = diaValue;
@@ -440,7 +438,6 @@ function updateDisplays() {
   updateTimeDisplay();
 }
 
-// 🕐 Poner hora actual al entrar a REGISTRO
 function setCurrentTime() {
   const now = new Date();
   timeMinutes = now.getHours() * 60 + now.getMinutes();
@@ -448,14 +445,13 @@ function setCurrentTime() {
   if (timeMinutes >= 1440) timeMinutes = 0;
 }
 
-// 🚦 SEMÁFORO: determinar estado
+// 🚦 SEMÁFORO
 function getStatus(sys, dia, pulse) {
   if (sys >= 150 || dia >= 95 || pulse < 50 || pulse > 110) return 'danger';
   if (sys >= 130 || dia >= 85 || pulse < 60 || pulse > 100) return 'warning';
   return 'ok';
 }
 
-// 🚦 SEMÁFORO: emoji según estado
 function getStatusEmoji(status) {
   if (status === 'danger') return '🔴';
   if (status === 'warning') return '🟡';
@@ -485,6 +481,97 @@ function renderHistory() {
   }).join('');
 }
 
+// 📄 GENERAR REPORTE
+function generateReport() {
+  const box = document.getElementById('report-box');
+  if (readings.length === 0) {
+    box.innerHTML = '<p class="history-empty">No hay mediciones para reportar 💜</p>';
+    return;
+  }
+
+  let totalSys = 0, totalDia = 0, totalPulse = 0;
+  let lines = readings.map((r, i) => {
+    totalSys += r.sys;
+    totalDia += r.dia;
+    totalPulse += r.pulse;
+    const status = getStatus(r.sys, r.dia, r.pulse);
+    const emoji = getStatusEmoji(status);
+    return (i + 1) + '. ' + r.date + ' · ' + formatTime(r.timeMinutes) + ' → ' + r.sys + '/' + r.dia + ' · Pulso ' + r.pulse + ' ' + emoji;
+  });
+
+  const avgSys = Math.round(totalSys / readings.length);
+  const avgDia = Math.round(totalDia / readings.length);
+  const avgPulse = Math.round(totalPulse / readings.length);
+
+  const now = new Date();
+  const today = now.getFullYear() + '-' +
+    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+    String(now.getDate()).padStart(2, '0');
+
+  const reportText = '💜 MARGARITA PRESSURE - Reporte\n' +
+    '📅 Generado: ' + today + '\n' +
+    '📋 Total de mediciones: ' + readings.length + '\n\n' +
+    lines.join('\n') + '\n\n' +
+    '📊 Promedio: ' + avgSys + '/' + avgDia + ' · Pulso ' + avgPulse;
+
+  box.innerHTML = '<p class="report-text">' + reportText.replace(/\n/g, '<br>') + '</p>';
+}
+
+// 📋 COPIAR REPORTE
+function copyReport() {
+  if (readings.length === 0) {
+    alert('No hay mediciones para copiar 💜');
+    return;
+  }
+
+  let totalSys = 0, totalDia = 0, totalPulse = 0;
+  let lines = readings.map((r, i) => {
+    totalSys += r.sys;
+    totalDia += r.dia;
+    totalPulse += r.pulse;
+    const status = getStatus(r.sys, r.dia, r.pulse);
+    const emoji = getStatusEmoji(status);
+    return (i + 1) + '. ' + r.date + ' · ' + formatTime(r.timeMinutes) + ' → ' + r.sys + '/' + r.dia + ' · Pulso ' + r.pulse + ' ' + emoji;
+  });
+
+  const avgSys = Math.round(totalSys / readings.length);
+  const avgDia = Math.round(totalDia / readings.length);
+  const avgPulse = Math.round(totalPulse / readings.length);
+
+  const now = new Date();
+  const today = now.getFullYear() + '-' +
+    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+    String(now.getDate()).padStart(2, '0');
+
+  const text = '💜 MARGARITA PRESSURE - Reporte\n' +
+    '📅 Generado: ' + today + '\n' +
+    '📋 Total de mediciones: ' + readings.length + '\n\n' +
+    lines.join('\n') + '\n\n' +
+    '📊 Promedio: ' + avgSys + '/' + avgDia + ' · Pulso ' + avgPulse;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('✅ Reporte copiado. Pégalo en WhatsApp o donde quieras 💜');
+    }).catch(() => {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  alert('✅ Reporte copiado. Pégalo en WhatsApp o donde quieras 💜');
+}
+
 // 💾 GUARDAR MEDICIÓN
 function saveReading() {
   const now = new Date();
@@ -502,7 +589,7 @@ function saveReading() {
   localStorage.setItem('margarita_readings', JSON.stringify(readings));
 }
 
-// 🏠 MOSTRAR ÚLTIMA MEDICIÓN EN HOME
+// 🏠 ÚLTIMA MEDICIÓN EN HOME
 function updateHomeDisplay() {
   if (readings.length === 0) {
     document.getElementById('last-value').textContent = '-- / --';
@@ -529,6 +616,7 @@ document.getElementById('btn-history').addEventListener('click', () => {
 });
 
 document.getElementById('btn-report').addEventListener('click', () => {
+  generateReport();
   showScreen('screen-report');
 });
 
@@ -562,6 +650,11 @@ document.getElementById('btn-save').addEventListener('click', () => {
   vibrate();
   updateHomeDisplay();
   showScreen('screen-home');
+});
+
+// 📋 COPIAR REPORTE
+document.getElementById('btn-copy-report').addEventListener('click', () => {
+  copyReport();
 });
 
 // 🗑️ BORRAR (doble confirmación)
