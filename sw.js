@@ -1,4 +1,4 @@
-const CACHE_NAME = 'margarita-pressure-v1';
+const CACHE_NAME = 'margarita-pressure-v2';
 const ASSETS = [
   './',
   './index.html',
