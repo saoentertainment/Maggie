@@ -520,7 +520,7 @@ function generateReport() {
 // 📋 COPIAR REPORTE
 function copyReport() {
   if (readings.length === 0) {
-    alert('No hay mediciones para copiar 💜');
+    showToast('No hay mediciones para copiar 💜');
     return;
   }
 
@@ -549,27 +549,40 @@ function copyReport() {
     lines.join('\n') + '\n\n' +
     '📊 Promedio: ' + avgSys + '/' + avgDia + ' · Pulso ' + avgPulse;
 
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(() => {
-      alert('✅ Reporte copiado. Pégalo en WhatsApp o donde quieras 💜');
-    }).catch(() => {
-      fallbackCopy(text);
-    });
-  } else {
-    fallbackCopy(text);
-  }
-}
-
-function fallbackCopy(text) {
+  // Método textarea (más compatible con celulares)
   const ta = document.createElement('textarea');
   ta.value = text;
   ta.style.position = 'fixed';
-  ta.style.left = '-9999px';
+  ta.style.left = '0';
+  ta.style.top = '0';
+  ta.style.opacity = '0';
   document.body.appendChild(ta);
+  ta.focus();
   ta.select();
-  document.execCommand('copy');
+  ta.setSelectionRange(0, text.length);
+
+  try {
+    document.execCommand('copy');
+    showToast('✅ Reporte copiado. Pégalo en WhatsApp 💜');
+  } catch(e) {
+    showToast('❌ No se pudo copiar. Selecciona el texto manualmente.');
+  }
+
   document.body.removeChild(ta);
-  alert('✅ Reporte copiado. Pégalo en WhatsApp o donde quieras 💜');
+}
+
+// 💬 TOAST (mensaje temporal sin alert)
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#4caf50;color:#fff;padding:16px 24px;border-radius:12px;font-size:16px;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.4);text-align:center;max-width:90%;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  setTimeout(() => { toast.style.display = 'none'; }, 3000);
 }
 
 // 💾 GUARDAR MEDICIÓN
