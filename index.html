@@ -448,6 +448,43 @@ function setCurrentTime() {
   if (timeMinutes >= 1440) timeMinutes = 0;
 }
 
+// 🚦 SEMÁFORO: determinar estado
+function getStatus(sys, dia, pulse) {
+  if (sys >= 150 || dia >= 95 || pulse < 50 || pulse > 110) return 'danger';
+  if (sys >= 130 || dia >= 85 || pulse < 60 || pulse > 100) return 'warning';
+  return 'ok';
+}
+
+// 🚦 SEMÁFORO: emoji según estado
+function getStatusEmoji(status) {
+  if (status === 'danger') return '🔴';
+  if (status === 'warning') return '🟡';
+  return '🟢';
+}
+
+// 📋 RENDERIZAR HISTORIAL
+function renderHistory() {
+  const container = document.getElementById('history-list');
+  if (readings.length === 0) {
+    container.innerHTML = '<p class="history-empty">Aún no hay mediciones 💜</p>';
+    return;
+  }
+  container.innerHTML = readings.map(r => {
+    const status = getStatus(r.sys, r.dia, r.pulse);
+    const emoji = getStatusEmoji(status);
+    const cardClass = status === 'danger' ? ' danger' : status === 'warning' ? ' warning' : '';
+    return '<div class="history-card' + cardClass + '">' +
+      '<div class="history-card-info">' +
+        '<span class="history-card-bp">' + r.sys + ' / ' + r.dia + '</span>' +
+        '<span class="history-card-pulse">❤️ ' + r.pulse + '</span>' +
+        '<span class="history-card-date">' + r.date + ' · ' + formatTime(r.timeMinutes) + '</span>' +
+      '</div>' +
+      '<span class="history-card-status">' + emoji + '</span>' +
+      '<button class="history-card-delete" data-id="' + r.id + '">🗑️</button>' +
+    '</div>';
+  }).join('');
+}
+
 // 💾 GUARDAR MEDICIÓN
 function saveReading() {
   const now = new Date();
@@ -461,7 +498,7 @@ function saveReading() {
       String(now.getMonth() + 1).padStart(2, '0') + '-' +
       String(now.getDate()).padStart(2, '0')
   };
-  readings.unshift(reading); // nueva al inicio
+  readings.unshift(reading);
   localStorage.setItem('margarita_readings', JSON.stringify(readings));
 }
 
@@ -487,6 +524,7 @@ document.getElementById('btn-new').addEventListener('click', () => {
 });
 
 document.getElementById('btn-history').addEventListener('click', () => {
+  renderHistory();
   showScreen('screen-history');
 });
 
@@ -524,6 +562,21 @@ document.getElementById('btn-save').addEventListener('click', () => {
   vibrate();
   updateHomeDisplay();
   showScreen('screen-home');
+});
+
+// 🗑️ BORRAR (doble confirmación)
+document.getElementById('history-list').addEventListener('click', (e) => {
+  if (e.target.classList.contains('history-card-delete')) {
+    const id = Number(e.target.dataset.id);
+    if (confirm('¿Borrar esta medición?')) {
+      if (confirm('¿Estás segura? No se puede deshacer.')) {
+        readings = readings.filter(r => r.id !== id);
+        localStorage.setItem('margarita_readings', JSON.stringify(readings));
+        renderHistory();
+        updateHomeDisplay();
+      }
+    }
+  }
 });
 
 // ➕➖ HORA
@@ -572,7 +625,7 @@ document.getElementById('pulse-plus').addEventListener('click', () => {
   updateDisplays();
 });
 
-// 🚀 AL CARGAR: mostrar última medición
+// 🚀 AL CARGAR
 updateHomeDisplay();
 
 </script>
