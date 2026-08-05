@@ -494,6 +494,16 @@
     return new Date(year, month + 1, 0).getDate();
   }
 
+  // 📋 ORDENAR por fecha y hora (más reciente primero)
+  function sortReadings() {
+    readings.sort((a, b) => {
+      if (a.date !== b.date) {
+        return b.date.localeCompare(a.date);
+      }
+      return b.timeMinutes - a.timeMinutes;
+    });
+  }
+
   function setCurrentTime() {
     const now = new Date();
     timeMinutes = now.getHours() * 60 + now.getMinutes();
@@ -515,6 +525,7 @@
 
   function renderHistory() {
     const container = document.getElementById('history-list');
+    sortReadings();    
     if (readings.length === 0) {
       container.innerHTML = '<p class="history-empty">Aún no hay mediciones 💜</p>';
       return;
@@ -620,6 +631,7 @@
   }
 
   function updateHomeDisplay() {
+    sortReadings();    
     if (readings.length === 0) {
       document.getElementById('last-value').textContent = '-- / --';
       document.getElementById('last-pulse').textContent = 'Pulso: --';
